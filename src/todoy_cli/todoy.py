@@ -1,7 +1,12 @@
 
 
-
+import os
+import sys
 import argparse
+from configparser import ConfigParser
+
+from colorama import Fore, init
+init(autoreset=True)
 
 parser = argparse.ArgumentParser()
 
@@ -21,14 +26,56 @@ args = parser.parse_args()
 print(args)
 
 
+config_file = r"./src/todoy_cli/config.ini"
+config = ConfigParser()
+
+try:
+    config.read(config_file)
+except:
+    print(f"{Fore.RED}FATAL: Reading config file failed!")
+    sys.exit(1)
+
+
 # data structure
 data = {1:{
     'desc': 'This is a task',
     'status': 0, # 0: new, 1: started, 2: stopped, 3: complete, 4: delete
     'created': '2023-11-09',
-    'switched': None,
-    'priority': 0, # 0,1,2,3
+    'switched': None, # date of last 
+    'priority': 1, # 1,2,3,4
     'flag': False
 }}
+
+
+# unpack configs dict
+try:
+    # variable_name = config["Settings"]["VarInFile"]
+    newTaskSymbol = config["Settings"]["newTaskSymbol"]
+    startedTaskSymbol = config["Settings"]["startedTaskSymbol"]
+    stoppedTaskSymbol = config["Settings"]["stoppedTaskSymbol"]
+    completeTaskSymbol = config["Settings"]["completeTaskSymbol"]
+
+    newTaskColor = config["Settings"]["newTaskColor"]
+    startedTaskColor = config["Settings"]["startedTaskColor"]
+    stoppedTaskColor = config["Settings"]["stoppedTaskColor"]
+    completeTaskColor = config["Settings"]["completeTaskColor"]
+
+    priorityColor1 = config["Settings"]["priorityColor1"]
+    priorityColor2 = config["Settings"]["priorityColor2"]
+    priorityColor3 = config["Settings"]["priorityColor3"]
+    priorityColor4 = config["Settings"]["priorityColor4"]
+
+except:
+    print(f"{Fore.RED}FATAL: Missing values in config file!")
+
+
+
+
+
+def add_task():
+    data_keys = data.keys()
+    data_last_key = max(data_keys)
+
+print(newTaskSymbol)
 
 print("<<< EOF >>>")
