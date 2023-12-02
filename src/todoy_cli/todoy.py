@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse
+import json
 from configparser import ConfigParser
 
 from colorama import Fore, init
@@ -25,7 +26,7 @@ args = parser.parse_args()
 
 print(args)
 
-
+data_file = r"./tasky.json"
 config_file = r"./src/todoy_cli/config.ini"
 config = ConfigParser()
 
@@ -37,14 +38,14 @@ except:
 
 
 # data structure
-data = {1:{
-    'desc': 'This is a task',
-    'status': 0, # 0: new, 1: started, 2: stopped, 3: complete, 4: delete
-    'created': '2023-11-09',
-    'switched': None, # date of last 
-    'priority': 1, # 1,2,3,4
-    'flag': False
-}}
+# data = {1:{
+#     'desc': 'This is a task',
+#     'status': 0, # 0: new, 1: started, 2: stopped, 3: complete, 4: delete
+#     'created': '2023-11-09',
+#     'switched': None, # date of last 
+#     'priority': 1, # 1,2,3,4
+#     'flag': False
+# }}
 
 
 # unpack configs dict
@@ -68,13 +69,16 @@ try:
 except:
     print(f"{Fore.RED}FATAL: Missing values in config file!")
 
+with open(data_file, 'r') as json_file:
+    data = json.load(json_file)
 
+def index_data(current_dict: dict) -> list:
+    output = []
+    for k in current_dict.keys():
+        output.append(int(k))
+    return output
 
-
-
-def add_task():
-    data_keys = data.keys()
-    data_last_key = max(data_keys)
+print(index_data(data))
 
 print(newTaskSymbol)
 
