@@ -3,8 +3,8 @@ requires = ["setuptools"]                             # Boilerplate
 build-backend = "setuptools.build_meta"               # Boilerplate
 
 [project]
-name = "todoy-cli"                              # Your pip install <name> (must be unique)
-version = "0.0.1"                                     # Must be manually updated here with every change
+name = "tasky-cli"                              # Your pip install <name> (must be unique)
+version = "0.0.2"                                     # Must be manually updated here with every change
 authors = [
 	{ name="espehon", email="espehon@gmail.com" },      # Email is optional (as array?)
 ]
@@ -24,8 +24,8 @@ classifiers = [                                       # Kinda boilerplate. Used 
 ]
 
 [project.scripts]                                     # The entrypoint for CLI app (if needed)
-td = "todoy_cli.todoy:cli"               # SYNTAX: <commandlet> = "folder.file:function"
+td = "tasky_cli.tasky:cli"               # SYNTAX: <commandlet> = "folder.file:function"
                                                       # def main in __main__ and place in if name check
 [project.urls]
-"Homepage" = "https://github.com/espehon/todoy-cli"              # Boilerplate links to GitHub repo
-"Bug Tracker" = "https://github.com/espehon/todoy-cli/issues"    # Boilerplate links to GitHub repo issues
+"Homepage" = "https://github.com/espehon/tasky-cli"              # Boilerplate links to GitHub repo
+"Bug Tracker" = "https://github.com/espehon/tasky-cli/issues"    # Boilerplate links to GitHub repo issues
