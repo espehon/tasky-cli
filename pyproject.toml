@@ -24,7 +24,7 @@ classifiers = [                                       # Kinda boilerplate. Used 
 ]
 
 [project.scripts]                                     # The entrypoint for CLI app (if needed)
-td = "todoy_cli.todoy:cli"               # SYNTAX: <commandlet> = "folder.file:function"
+ts = "tasky_cli.tasky:cli"               # SYNTAX: <commandlet> = "folder.file:function"
                                                       # def main in __main__ and place in if name check
 [project.urls]
 "Homepage" = "https://github.com/espehon/tasky-cli"              # Boilerplate links to GitHub repo
