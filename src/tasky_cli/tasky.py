@@ -4,6 +4,7 @@ import os
 import sys
 import argparse
 import json
+import datetime
 from configparser import ConfigParser
 
 from colorama import Fore, init
@@ -11,7 +12,6 @@ init(autoreset=True)
 
 parser = argparse.ArgumentParser()
 
-# TODO: fix actions and nargs. All arguments can technically be passed 1 or more task integers (except --edit)
 parser.add_argument('-t', '--task', action='store_true', help='Add a new task')
 parser.add_argument('-c', '--complete', nargs='+', metavar='T', action='store', type=int, help='Mark task(s) complete')
 parser.add_argument('-s', '--switch', nargs='+', metavar='T', action='store', type=int, help='Toggle task(s) as started/stopped')
@@ -27,7 +27,7 @@ args = parser.parse_args()
 print(args)
 
 data_file = r"./tasky.json"
-config_file = r"./src/todoy_cli/config.ini"
+config_file = r"./src/tasky_cli/config.ini"
 config = ConfigParser()
 
 try:
@@ -37,18 +37,19 @@ except:
     sys.exit(1)
 
 
-# data structure
-# data = {1:{
+# <<< data structure >>>
+# data = {'1':{
 #     'desc': 'This is a task',
 #     'status': 0, # 0: new, 1: started, 2: stopped, 3: complete, 4: delete
 #     'created': '2023-11-09',
-#     'switched': None, # date of last 
+#     'switched': None, # date of last status change
 #     'priority': 1, # 1,2,3,4
 #     'flag': False
 # }}
 
 
 # unpack configs dict
+#TODO: #2 Nest each variable in a try/except to fall back to a default value if the user messed up the config file.
 try:
     # variable_name = config["Settings"]["VarInFile"]
     newTaskSymbol = config["Settings"]["newTaskSymbol"]
@@ -77,6 +78,23 @@ def index_data(current_dict: dict) -> list:
     for k in current_dict.keys():
         output.append(int(k))
     return output
+
+def build_new_task(index: int, task_desc: str, priority: bool, flagged: bool) -> dict:
+    "Return new task as a dict for storage"
+    output = {str(index): {
+        "desc": task_desc,
+        "status": 0,
+        "created": str(datetime.datetime.now().date()),
+        "switched": "None",
+        "priority": priority,
+        "flag": flagged
+    }}
+    return output
+
+
+
+
+
 
 print(index_data(data))
 
