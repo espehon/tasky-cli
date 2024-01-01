@@ -73,13 +73,15 @@ except:
 with open(data_file, 'r') as json_file:
     data = json.load(json_file)
 
+
+
 def index_data(current_dict: dict) -> list:
     output = []
     for k in current_dict.keys():
         output.append(int(k))
     return output
 
-def build_new_task(index: int, task_desc: str, priority: bool, flagged: bool) -> dict:
+def format_new_task(index: int, task_desc: str, priority: int, flagged: bool) -> dict:
     "Return new task as a dict for storage"
     output = {str(index): {
         "desc": task_desc,
@@ -92,12 +94,21 @@ def build_new_task(index: int, task_desc: str, priority: bool, flagged: bool) ->
     return output
 
 
+tasks_index = index_data(data)
+next_index = max(tasks_index) + 1
+passed_string = " ".join(args.text)
+
+#TODO: RegEx search for p:#; Remove if found and assign # as priority
+if 'p:' in passed_string:
+    pass
+
+print("-----")
 
 
+if args.task:
+    
+    new_task = format_new_task(next_index, passed_string, 1, False)
+    print(new_task)
 
-
-print(index_data(data))
-
-print(newTaskSymbol)
 
 print("<<< EOF >>>")
