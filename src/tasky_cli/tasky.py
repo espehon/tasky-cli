@@ -76,9 +76,16 @@ except:
 with open(data_file, 'r') as json_file:
     data = json.load(json_file)
 
-
+def update_tasks():
+    """Write data dict to json"""
+    with open(data_file, 'w') as json_file:
+        json.dump(data, json_file, indent=4)
 
 def index_data(current_dict: dict) -> list:
+    """
+    Return list of keys as int from data dict.
+    This is to get around the JavaScript limitation of keys being strings
+    """
     output = []
     for k in current_dict.keys():
         output.append(int(k))
@@ -132,6 +139,8 @@ print("-----")
 
 if args.task:    
     new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
+    data.update(new_task)
+    update_tasks()
     print(new_task)
 
 
