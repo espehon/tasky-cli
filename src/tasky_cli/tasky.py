@@ -30,6 +30,9 @@ data_file = r"./tasky.json"
 config_file = r"./src/tasky_cli/config.ini"
 config = ConfigParser()
 
+PRIORITIES = (1, 2, 3, 4)
+DEFAULT_PRIORITY = 1
+
 try:
     config.read(config_file)
 except:
@@ -93,21 +96,42 @@ def format_new_task(index: int, task_desc: str, priority: int, flagged: bool) ->
     }}
     return output
 
+def check_for_priority(text: str) -> tuple:
+    """
+    Returns a tuple containing bool and int.
+    Bool represents if the priority was passed in the task description.
+    Int represents the priority.
+    """
+    # This could be done with a match/case block, but I want to keep the Python requirements low.
+    if len(text) == 3:
+        a, b, c = text
+        if str.lower(a) == 'p':
+            if b == ':':
+                try:
+                    if int(c) in PRIORITIES:
+                        return (True, int(c))
+                except:
+                    pass
+    return (False, DEFAULT_PRIORITY)
+
+
 
 tasks_index = index_data(data)
 next_index = max(tasks_index) + 1
-passed_string = " ".join(args.text)
+passed_string = (" ".join(args.text)).strip()
+passed_priority = check_for_priority(passed_string[-3:])
 
-#TODO: RegEx search for p:#; Remove if found and assign # as priority
-if 'p:' in passed_string:
-    pass
+if passed_priority[0]:
+    passed_string = passed_string[:-3].strip()
+
+
+
 
 print("-----")
 
 
-if args.task:
-    
-    new_task = format_new_task(next_index, passed_string, 1, False)
+if args.task:    
+    new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
     print(new_task)
 
 
