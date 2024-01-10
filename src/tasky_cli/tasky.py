@@ -143,7 +143,7 @@ if args.task:
     new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
     data.update(new_task)
     update_tasks()
-    print(new_task)
+    print("\tNew task added.")
 
 # --switch
 elif args.switch:
@@ -163,6 +163,7 @@ elif args.switch:
             updates += 1
     if updates > 0:
         update_tasks()
+        print(f"\t{updates} task{'' if updates == 1 else 's'} updated.")
 
 # --complete
 elif args.complete:
@@ -182,5 +183,23 @@ elif args.complete:
             updates += 1
     if updates > 0:
         update_tasks()
+        print(f"\t{updates} task{'' if updates == 1 else 's'} updated.")
 
+# --delete
+elif args.delete:
+    updates = 0
+    task_keys = [str(i) for i in args.delete]
+    for task_key in task_keys:
+        working_task = data[task_key]
+        new_status = None
+        if working_task['status'] != 4:
+            new_status = 4
+        if new_status is not None:
+            working_task['status'] = new_status
+            working_task['switched'] = str(datetime.datetime.now().date())
+            data[task_key] = working_task
+            updates += 1
+    if updates > 0:
+        update_tasks()
+        print(f"\t{updates} task{'' if updates == 1 else 's'} marked for deletion.")
 
