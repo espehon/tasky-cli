@@ -138,12 +138,14 @@ print("-----")
 
 # Main
 
+# --task
 if args.task:    
     new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
     data.update(new_task)
     update_tasks()
     print(new_task)
 
+# --switch
 elif args.switch:
     updates = 0
     task_keys = [str(i) for i in args.switch]
@@ -162,6 +164,23 @@ elif args.switch:
     if updates > 0:
         update_tasks()
 
-
+# --complete
+elif args.complete:
+    updates = 0
+    task_keys = [str(i) for i in args.complete]
+    for task_key in task_keys:
+        working_task = data[task_key]
+        new_status = None
+        if working_task['status'] == 0 or working_task['status'] == 1 or working_task['status'] == 2:
+            new_status = 3
+        elif working_task['status'] == 3:
+            new_status = 1
+        if new_status is not None:
+            working_task['status'] = new_status
+            working_task['switched'] = str(datetime.datetime.now().date())
+            data[task_key] = working_task
+            updates += 1
+    if updates > 0:
+        update_tasks()
 
 
