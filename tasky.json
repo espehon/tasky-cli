@@ -4,15 +4,23 @@
         "status": 0,
         "created": "2023-11-09",
         "switched": null,
-        "priority": 0,
+        "priority": 1,
         "flag": false
     },
     "2": {
-        "desc": "edited task desc",
+        "desc": "next task",
+        "status": 1,
+        "created": "2024-01-09",
+        "switched": "2024-01-09",
+        "priority": 1,
+        "flag": false
+    },
+    "3": {
+        "desc": "another one",
         "status": 2,
         "created": "2024-01-09",
         "switched": "2024-01-09",
-        "priority": 0,
-        "flag": true
+        "priority": 1,
+        "flag": false
     }
 }

@@ -121,6 +121,15 @@ def check_for_priority(text: str) -> tuple:
                     pass
     return (False, DEFAULT_PRIORITY)
 
+def render_tasks(prolog: str="") -> None:
+    #TODO finally, the fun part!
+    desc_lens = []
+    for task in data.values():
+        desc_lens.append(len(task['desc']))
+    width = max(desc_lens)
+
+
+
 
 
 tasks_index = index_data(data)
@@ -152,9 +161,9 @@ elif args.switch:
     for task_key in task_keys:
         working_task = data[task_key]
         new_status = None
-        if working_task['status'] == 0 or working_task['status'] == 2:
+        if working_task['status'] in [0, 2]:
             new_status = 1
-        elif working_task['status'] == 1:
+        elif working_task['status'] in [1]:
             new_status = 2
         if new_status is not None:
             working_task['status'] = new_status
@@ -172,9 +181,9 @@ elif args.complete:
     for task_key in task_keys:
         working_task = data[task_key]
         new_status = None
-        if working_task['status'] == 0 or working_task['status'] == 1 or working_task['status'] == 2:
+        if working_task['status'] in [0, 1, 2]:
             new_status = 3
-        elif working_task['status'] == 3:
+        elif working_task['status'] in [3]:
             new_status = 1
         if new_status is not None:
             working_task['status'] = new_status
@@ -208,7 +217,7 @@ elif args.clean:
     updates = 0
     task_keys = [str(i) for i in tasks_index]
     for key in task_keys:
-        if data[key]['status'] in (3, 4):
+        if data[key]['status'] in [3, 4]:
             data.pop(key)
             updates += 1
     new_data = {}
@@ -223,12 +232,15 @@ elif args.clean:
 elif args.priority:
     updates = 0
     T, P = args.priority
-    if data[str(T)]['priority'] != P:
-        data[str(T)]['priority'] = P
-        updates += 1
-    if updates > 0:
-        update_tasks()
-        print(f"\tTask #{T} set to priority level {P}.")
+    if P in PRIORITIES:
+        if data[str(T)]['priority'] != P:
+            data[str(T)]['priority'] = P
+            updates += 1
+        if updates > 0:
+            update_tasks()
+            print(f"\tTask #{T} set to priority level {P}.")
+    else:
+        print(f"\t{P} is not an available priority level.")
 
 # --flag
 elif args.flag:
