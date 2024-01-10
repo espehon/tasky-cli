@@ -16,7 +16,7 @@ parser.add_argument('-t', '--task', action='store_true', help='Add a new task')
 parser.add_argument('-c', '--complete', nargs='+', metavar='T', action='store', type=int, help='Mark task(s) complete')
 parser.add_argument('-s', '--switch', nargs='+', metavar='T', action='store', type=int, help='Toggle task(s) as started/stopped')
 # parser.add_argument('-f', '--flag', nargs='+', metavar='T', action='store', type=int, help='Flag task(s) with astrict (*)')
-# parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='store', type=int, help='Set the priority of task [T] to [P]')
+parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='store', type=int, help='Set the priority of task [T] to [P]')
 # parser.add_argument('-e', '--edit', nargs=1,metavar='T', action='store', type=int, help='Enter edit mode on a task')
 parser.add_argument('-d', '--delete', nargs='+', metavar='T', action='store', type=int, help='Mark task [T] for deletion')
 parser.add_argument('--clean', action='store_true', help='Remove complete/deleted tasks and reset indices')
@@ -218,6 +218,17 @@ elif args.clean:
     update_tasks()
     if updates > 0:
         print("\tTasks cleaned.")
+
+# --priority
+elif args.priority:
+    updates = 0
+    T, P = args.priority
+    if data[str(T)]['priority'] != P:
+        data[str(T)]['priority'] = P
+        updates += 1
+    if updates > 0:
+        update_tasks()
+        print(f"\tTask #{T} set to priority level {P}.")
     
 
 
