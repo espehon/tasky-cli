@@ -136,6 +136,7 @@ if passed_priority[0]:
 
 print("-----")
 
+# Main
 
 if args.task:    
     new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
@@ -143,5 +144,24 @@ if args.task:
     update_tasks()
     print(new_task)
 
+elif args.switch:
+    updates = 0
+    task_keys = [str(i) for i in args.switch]
+    for task_key in task_keys:
+        working_task = data[task_key]
+        new_status = None
+        if working_task['status'] == 0 or working_task['status'] == 2:
+            new_status = 1
+        elif working_task['status'] == 1:
+            new_status = 2
+        if new_status is not None:
+            working_task['status'] = new_status
+            working_task['switched'] = str(datetime.datetime.now().date())
+            data[task_key] = working_task
+            updates += 1
+    if updates > 0:
+        update_tasks()
 
-print("<<< EOF >>>")
+
+
+
