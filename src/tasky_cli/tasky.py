@@ -31,7 +31,7 @@ parser.add_argument('text', nargs=argparse.REMAINDER, help='Task description')
 # args = parser.parse_args()
 
 
-config_file = config_path + config_file
+config_path_file = config_path + config_file
 config = ConfigParser()
 
 PRIORITIES = (1, 2, 3, 4)
@@ -70,13 +70,13 @@ if os.path.exists(config_path) == False:
     os.makedirs(config_path)
 
 # if file does not exist, create it.
-if os.path.exists(config_file) == False:
-    with open(config_file, 'w') as settingsFile:
+if os.path.exists(config_path_file) == False:
+    with open(config_path_file, 'w') as settingsFile:
         settingsFile.write(DEFAULT_CONFIGS)
 
 
 try:
-    config.read(config_file, encoding='utf-8')
+    config.read(config_path_file, encoding='utf-8')
 except:
     print(f"{Fore.RED}FATAL: Reading config file failed!")
     sys.exit(1)
@@ -163,18 +163,20 @@ priority_symbol = {
 if os.path.exists(data_path) == False:
     os.makedirs(data_path)
 
+data_path_file = data_path + data_file
+
 # if file does not exist, create it.
-if os.path.exists(data_file) == False:
-    with open(data_file, 'w') as json_file:
+if os.path.exists(data_path_file) == False:
+    with open(data_path_file, 'w') as json_file:
         data = {}
         json.dump(data, json_file, indent=4)
 
-with open(data_file, 'r') as json_file:
+with open(data_path_file, 'r') as json_file:
     data = json.load(json_file)
 
 def update_tasks():
     """Write data dict to json"""
-    with open(data_file, 'w') as json_file:
+    with open(data_path_file, 'w') as json_file:
         json.dump(data, json_file, indent=4)
 
 def color(color_name: str, alternate_style: bool=False) -> str:
