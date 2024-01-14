@@ -31,7 +31,6 @@ parser.add_argument('text', nargs=argparse.REMAINDER, help='Task description')
 # args = parser.parse_args()
 
 
-config_path_file = config_path + config_file
 config = ConfigParser()
 
 PRIORITIES = (1, 2, 3, 4)
@@ -70,13 +69,13 @@ if os.path.exists(config_path) == False:
     os.makedirs(config_path)
 
 # if file does not exist, create it.
-if os.path.exists(config_path_file) == False:
-    with open(config_path_file, 'w') as settingsFile:
+if os.path.exists(config_file) == False:
+    with open(config_file, 'w', encoding='utf-8') as settingsFile:
         settingsFile.write(DEFAULT_CONFIGS)
 
 
 try:
-    config.read(config_path_file, encoding='utf-8')
+    config.read(config_file, encoding='utf-8')
 except:
     print(f"{Fore.RED}FATAL: Reading config file failed!")
     sys.exit(1)
@@ -117,8 +116,9 @@ colors = {
 #TODO: #2 Nest each variable in a try/except to fall back to a default value if the user messed up the config file.
 try:
     # variable_name = config["Settings"]["VarInFile"]
-    data_path = config["Settings"]["dataPath"].replace('\"', '')
-    data_file = config["Settings"]["dataFile"].replace('\"', '')
+    data_path = config["Settings"]["taskPath"].replace('\"', '')
+    data_file = config["Settings"]["taskFile"].replace('\"', '')
+
     newTaskSymbol = config["Settings"]["newTaskSymbol"].replace('\"', '')
     startedTaskSymbol = config["Settings"]["startedTaskSymbol"].replace('\"', '')
     stoppedTaskSymbol = config["Settings"]["stoppedTaskSymbol"].replace('\"', '')
@@ -142,8 +142,8 @@ try:
     prioritySymbol4 = config["Settings"]["prioritySymbol4"].replace('\"', '')
 
 
-except:
-    print(f"{Fore.RED}FATAL: Missing values in config file!")
+except Exception as e:
+    print(f"{Fore.RED}{e}")
 
 priority_color = {
     1: priorityColor1,
@@ -160,6 +160,7 @@ priority_symbol = {
 }
 
 # if path does not exist, create it.
+data_path = os.path.expanduser(data_path)
 if os.path.exists(data_path) == False:
     os.makedirs(data_path)
 
@@ -317,7 +318,7 @@ def render_tasks(prolog: str="") -> None:
 
 
 # Main
-def clocky(argv=None):
+def tasky(argv=None):
     args = parser.parse_args(argv) #Execute parse_args()
 
     tasks_index = index_data(data)
