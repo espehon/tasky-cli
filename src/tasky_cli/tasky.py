@@ -165,20 +165,31 @@ if os.path.exists(data_path) == False:
     os.makedirs(data_path)
 
 data_path_file = data_path + data_file
+data = {}
 
 # if file does not exist, create it.
 if os.path.exists(data_path_file) == False:
     with open(data_path_file, 'w') as json_file:
-        data = {}
         json.dump(data, json_file, indent=4)
 
 with open(data_path_file, 'r') as json_file:
     data = json.load(json_file)
 
-def update_tasks():
+
+def add_new_task(task: dict):
+    """Adds a new task dict to the data dict"""
+    data.update(task)
+
+
+def update_tasks(override_data=None):
     """Write data dict to json"""
-    with open(data_path_file, 'w') as json_file:
-        json.dump(data, json_file, indent=4)
+    if override_data is None:
+        with open(data_path_file, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+    else:
+        with open(data_path_file, 'w') as json_file:
+            json.dump(override_data, json_file, indent=4)
+
 
 def color(color_name: str, alternate_style: bool=False) -> str:
     key1 = color_name
@@ -248,9 +259,13 @@ def check_for_priority(text: str) -> tuple:
 
 def render_tasks(prolog: str="") -> None:
     #TODO finally, the fun part!
-    data_copy = copy.deepcopy(data)
+    fresh_data = {}
+    with open(data_path_file, 'r') as json_file:
+        fresh_data = json.load(json_file)
+
+    data_copy = copy.deepcopy(fresh_data)
     done, working, pending = 0, 0, 0
-    for key, task in data.items():
+    for key, task in fresh_data.items():
         status = task['status']
         if status in [0, 2]:
             pending += 1
@@ -261,12 +276,18 @@ def render_tasks(prolog: str="") -> None:
         elif status in [4]:
             data_copy.pop(key)
     total = done + working + pending
-    rate = int((done / total) * 100)
+    if total == 0:
+        rate = 100
+    else:
+        rate = int((done / total) * 100)
     desc_lens = []
     for task in data_copy.values():
         desc_lens.append(len(task['desc']))
     buffer = 20
-    width = max(desc_lens) + buffer
+    if len(desc_lens) == 0:
+        width = buffer
+    else:
+        width = max(desc_lens) + buffer
     header = ("\n"*4) + "❮❮❮ tasky ❯❯❯".center(int(width*0.8)) + "\n"
     boarder = [color(boarderColor) + "┍" + ("━"*width),
                 " " + (color(boarderColor) + "─"*width) + "┚"]
@@ -315,140 +336,172 @@ def render_tasks(prolog: str="") -> None:
     print(complete_stat)
     print(breakdown_stat)
 
+def switch_task_status(task_keys):
+    updates = 0
+    for task_key in task_keys:
+        working_task = data[task_key]
+        new_status = None
+        if working_task['status'] in [0, 2]:
+            new_status = 1
+        elif working_task['status'] in [1]:
+            new_status = 2
+        if new_status is not None:
+            working_task['status'] = new_status
+            working_task['switched'] = str(datetime.datetime.now().date())
+            data[task_key] = working_task
+            updates += 1
+    if updates > 0:
+        update_tasks()
+        render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
 
+def mark_tasks_complete(task_keys):
+    updates = 0
+    for task_key in task_keys:
+        working_task = data[task_key]
+        new_status = None
+        if working_task['status'] in [0, 1, 2]:
+            new_status = 3
+        elif working_task['status'] in [3]:
+            new_status = 1
+        if new_status is not None:
+            working_task['status'] = new_status
+            working_task['switched'] = str(datetime.datetime.now().date())
+            data[task_key] = working_task
+            updates += 1
+    if updates > 0:
+        update_tasks()
+        render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
+
+def mark_tasks_deleted(task_keys):
+    updates = 0
+    for task_key in task_keys:
+        working_task = data[task_key]
+        new_status = None
+        if working_task['status'] != 4:
+            new_status = 4
+        if new_status is not None:
+            working_task['status'] = new_status
+            working_task['switched'] = str(datetime.datetime.now().date())
+            data[task_key] = working_task
+            updates += 1
+    if updates > 0:
+        update_tasks()
+        render_tasks(f"{updates} task{'' if updates == 1 else 's'} marked for deletion.")
+
+def clean_task_list(task_keys, old_data):
+    updates = 0
+    for key in task_keys:
+        if old_data[key]['status'] in [3, 4]:
+            old_data.pop(key)
+            updates += 1
+    new_data = {}
+    for index, task in enumerate(old_data.values()):
+        new_data[str(index + 1)] = task
+    if updates > 0:
+        update_tasks(new_data)
+        render_tasks("Tasks cleaned.")
+    else:
+        print("Nothing to clean.")
+
+def change_task_priority(task_id, new_priority):
+    updates = 0
+    if new_priority in PRIORITIES:
+        if data[str(task_id)]['priority'] != new_priority:
+            data[str(task_id)]['priority'] = new_priority
+            updates += 1
+        if updates > 0:
+            update_tasks()
+            render_tasks(f"Task #{task_id} set to priority level {new_priority}.")
+    else:
+        print(f"{new_priority} is not an available priority level.")
+
+def flag_tasks(task_keys):
+    updates = 0
+    for task_key in task_keys:
+        try:
+            working_task = data[task_key]
+            working_task['flag'] = not working_task['flag']
+            updates += 1
+        except:
+            print(f"'{task_key}' is an invalid task id.")
+    if updates > 0:
+        update_tasks()
+        render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
+
+def edit_task(task_key):
+    if task_key in data:
+        new_desc = input(f"Enter new task description for #{task_key}...\n>>> ").strip()
+        data[task_key]['desc'] = new_desc
+        update_tasks()
+        render_tasks(f"Task #{task_key} has been edited.")
+    else:
+        print(f"'{task_key}' is an invalid task id.")
 
 # Main
+tasks_index = index_data(data)
+
+if len(tasks_index) == 0:
+    next_index = 1
+else:
+    next_index = max(tasks_index) + 1
+
 def tasky(argv=None):
     args = parser.parse_args(argv) #Execute parse_args()
 
-    tasks_index = index_data(data)
-    next_index = max(tasks_index) + 1
     passed_string = (" ".join(args.text)).strip()
     passed_priority = check_for_priority(passed_string[-3:])
 
     if passed_priority[0]:
         passed_string = passed_string[:-3].strip()
 
+
     # --task
     if args.task:    
         new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
-        data.update(new_task)
+        add_new_task(new_task)
         update_tasks()
         render_tasks("New task added.")
 
     # --switch
     elif args.switch:
-        updates = 0
-        task_keys = [str(i) for i in args.switch]
-        for task_key in task_keys:
-            working_task = data[task_key]
-            new_status = None
-            if working_task['status'] in [0, 2]:
-                new_status = 1
-            elif working_task['status'] in [1]:
-                new_status = 2
-            if new_status is not None:
-                working_task['status'] = new_status
-                working_task['switched'] = str(datetime.datetime.now().date())
-                data[task_key] = working_task
-                updates += 1
-        if updates > 0:
-            update_tasks()
-            render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
+        keys = [str(i) for i in args.switch]
+        switch_task_status(keys)
 
     # --complete
     elif args.complete:
-        updates = 0
-        task_keys = [str(i) for i in args.complete]
-        for task_key in task_keys:
-            working_task = data[task_key]
-            new_status = None
-            if working_task['status'] in [0, 1, 2]:
-                new_status = 3
-            elif working_task['status'] in [3]:
-                new_status = 1
-            if new_status is not None:
-                working_task['status'] = new_status
-                working_task['switched'] = str(datetime.datetime.now().date())
-                data[task_key] = working_task
-                updates += 1
-        if updates > 0:
-            update_tasks()
-            render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
+        keys = [str(i) for i in args.complete]
+        mark_tasks_complete(keys)
+
 
     # --delete
     elif args.delete:
-        updates = 0
-        task_keys = [str(i) for i in args.delete]
-        for task_key in task_keys:
-            working_task = data[task_key]
-            new_status = None
-            if working_task['status'] != 4:
-                new_status = 4
-            if new_status is not None:
-                working_task['status'] = new_status
-                working_task['switched'] = str(datetime.datetime.now().date())
-                data[task_key] = working_task
-                updates += 1
-        if updates > 0:
-            update_tasks()
-            render_tasks(f"{updates} task{'' if updates == 1 else 's'} marked for deletion.")
+        keys = [str(i) for i in args.delete]
+        mark_tasks_deleted(keys)
 
-    # --clear
+
+    # --clean
     elif args.clean:
-        updates = 0
-        task_keys = [str(i) for i in tasks_index]
-        for key in task_keys:
-            if data[key]['status'] in [3, 4]:
-                data.pop(key)
-                updates += 1
-        new_data = {}
-        for index, task in enumerate(data.values()):
-            new_data[str(index + 1)] = task
-        data = new_data
-        update_tasks()
-        if updates > 0:
-            render_tasks("Tasks cleaned.")
+        keys = [str(i) for i in tasks_index]
+        clean_task_list(keys, data)
+
 
     # --priority
     elif args.priority:
-        updates = 0
         T, P = args.priority
-        if P in PRIORITIES:
-            if data[str(T)]['priority'] != P:
-                data[str(T)]['priority'] = P
-                updates += 1
-            if updates > 0:
-                update_tasks()
-                render_tasks(f"Task #{T} set to priority level {P}.")
-        else:
-            print(f"\t{P} is not an available priority level.")
+        change_task_priority(T, P)
+
 
     # --flag
     elif args.flag:
-        updates = 0
-        task_keys = [str(i) for i in args.flag]
-        for task_key in task_keys:
-            try:
-                working_task = data[task_key]
-                working_task['flag'] = not working_task['flag']
-                updates += 1
-            except:
-                print(f"\t'{task_key}' is an invalid task id.")
-        if updates > 0:
-            update_tasks()
-            render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
+        keys = [str(i) for i in args.flag]
+        flag_tasks(keys)
+
 
     # --edit
     elif args.edit:
-        task_key = str(args.edit[0])
-        if task_key in data:
-            new_desc = input(f"Enter new task description for #{task_key}...\n>>> ").strip()
-            data[task_key]['desc'] = new_desc
-            update_tasks()
-            render_tasks(f"Task #{task_key} has been edited.")
-        else:
-            print(f"\t'{task_key}' is an invalid task id.")
+        key = str(args.edit[0])
+        edit_task(key)
+
 
     # no args
     else:
