@@ -16,8 +16,15 @@ home = os.path.expanduser("~")
 config_path = os.path.expanduser("~/.config/tasky/")
 config_file = f"{config_path}tasky.ini"
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(
+    description="Tasky: A to-do list program!\n\nBased off of klaudiosinani's Taskbook for JavaScript.",
+    epilog="Examples: ts --task this is a new task, ts --switch 1, ts --complete 1",
+    allow_abbrev=False,
+    add_help=False,
+    usage="ts [option] <arguments>    'try: ts --help'"
+)
 
+parser.add_argument('-?', '--help', action='help', help='Show this help message and exit.')
 parser.add_argument('-t', '--task', action='store_true', help='Add a new task')
 parser.add_argument('-c', '--complete', nargs='+', metavar='T', action='store', type=int, help='Mark task(s) complete')
 parser.add_argument('-s', '--switch', nargs='+', metavar='T', action='store', type=int, help='Toggle task(s) as started/stopped')
@@ -26,9 +33,7 @@ parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='sto
 parser.add_argument('-e', '--edit', nargs=1, metavar='T', action='store', type=int, help='Enter edit mode on a task')
 parser.add_argument('-d', '--delete', nargs='+', metavar='T', action='store', type=int, help='Mark task [T] for deletion')
 parser.add_argument('--clean', action='store_true', help='Remove complete/deleted tasks and reset indices')
-parser.add_argument('text', nargs=argparse.REMAINDER, help='Task description')
-
-# args = parser.parse_args()
+parser.add_argument('text', nargs=argparse.REMAINDER, help='Task description that is used with --task')
 
 
 config = ConfigParser()
@@ -42,10 +47,11 @@ taskPath = "~/.local/share/tasky/"
 taskFile = "tasky.json"
 
 newTaskSymbol = "[!]"
-startedTaskSymbol = "[>]"
+startedTaskSymbol = "[▶]"
 stoppedTaskSymbol = "[.]"
-completeTaskSymbol = " √ "
-flagSymbol = "🏳"
+completeTaskSymbol = "✔ "
+flagSymbol = "🏳 "
+flagSymbolAlt = "🏴"
 
 boarderColor = "bright_black"
 newTaskColor = "red"
@@ -124,6 +130,7 @@ try:
     stoppedTaskSymbol = config["Settings"]["stoppedTaskSymbol"].replace('\"', '')
     completeTaskSymbol = config["Settings"]["completeTaskSymbol"].replace('\"', '')
     flagSymbol = config["Settings"]["flagSymbol"].replace('\"', '')
+    flagSymbolAlt = config["Settings"]["flagSymbolAlt"].replace('\"', '')
 
     boarderColor = config['Settings']['boarderColor'].replace('\"', '')
     newTaskColor = config["Settings"]["newTaskColor"].replace('\"', '')
@@ -288,7 +295,7 @@ def render_tasks(prolog: str="") -> None:
         width = buffer
     else:
         width = max(desc_lens) + buffer
-    header = ("\n"*4) + "❮❮❮ tasky ❯❯❯".center(int(width*0.8)) + "\n"
+    header = ("\n") + "❮❮❮ tasky ❯❯❯".center(int(width*0.8)) + "\n"
     boarder = [color(boarderColor) + "┍" + ("━"*width),
                 " " + (color(boarderColor) + "─"*width) + "┚"]
     title = f"{color(boarderColor)}│{Style.RESET_ALL}  Tasks {color(boarderColor)}[{done}/{total}]"
@@ -297,10 +304,13 @@ def render_tasks(prolog: str="") -> None:
     def get_task_lines():
         for key, task in data_copy.items():
             if task['flag']:
-                flag = flagSymbol
+                if task['status'] == 3:
+                    flag = flagSymbolAlt
+                else:
+                    flag = flagSymbol
             else:
-                flag = ""
-            id = f"{flag.rjust(2)}{color(boarderColor) + key.rjust(3) + '. ' + Style.RESET_ALL}"
+                flag = "  "
+            id = f"{flag}{color(boarderColor) + key.rjust(3) + '. ' + Style.RESET_ALL}"
             if task['status'] == 0:
                 symbol = color(newTaskColor) + newTaskSymbol + Style.RESET_ALL + "  "
             elif task['status'] == 1:
