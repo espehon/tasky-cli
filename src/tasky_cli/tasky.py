@@ -1,5 +1,7 @@
+# Copyright (c) 2024 espehon
+# MIT License
 
-
+#region: Housekeeping
 import os
 import sys
 import argparse
@@ -16,6 +18,7 @@ home = os.path.expanduser("~")
 config_path = os.path.expanduser("~/.config/tasky/")
 config_file = f"{config_path}tasky.ini"
 
+# Set argument parsing
 parser = argparse.ArgumentParser(
     description="Tasky: A to-do list program!\n\nBased off of klaudiosinani's Taskbook for JavaScript.",
     epilog="Examples: ts --task this is a new task, ts --switch 1, ts --complete 1",
@@ -35,12 +38,14 @@ parser.add_argument('-d', '--delete', nargs='+', metavar='T', action='store', ty
 parser.add_argument('--clean', action='store_true', help='Remove complete/deleted tasks and reset indices')
 parser.add_argument('text', nargs=argparse.REMAINDER, help='Task description that is used with --task')
 
-
 config = ConfigParser()
 
+
+# Set Variables / Constants
 PRIORITIES = (1, 2, 3, 4)
 DEFAULT_PRIORITY = 1
 
+#TODO: #4 There should be an ASCII only set of characters for older terminals that tasky defaults too provided there is a way to get check a terminals ability.
 DEFAULT_CONFIGS = """\
 [Settings]
 taskPath = "~/.local/share/tasky/"
@@ -70,34 +75,8 @@ prioritySymbol3 = "(!!)"
 prioritySymbol4 = "(!!!)"
 """
 
-# if path does not exist, create it.
-if os.path.exists(config_path) == False:
-    os.makedirs(config_path)
-
-# if file does not exist, create it.
-if os.path.exists(config_file) == False:
-    with open(config_file, 'w', encoding='utf-8') as settingsFile:
-        settingsFile.write(DEFAULT_CONFIGS)
-
-
-try:
-    config.read(config_file, encoding='utf-8')
-except:
-    print(f"{Fore.RED}FATAL: Reading config file failed!")
-    sys.exit(1)
-
-
-# <<< data structure >>>
-# data = {'1':{
-#     'desc': 'This is a task',
-#     'status': 0, # 0: new, 1: started, 2: stopped, 3: complete, 4: delete
-#     'created': '2023-11-09',
-#     'switched': None, # date of last status change
-#     'priority': 1, # 1,2,3,4
-#     'flag': False
-# }}
-
-colors = {
+# Color name mapping for colorama
+COLORS = {
     'red': {'norm': Fore.RED, 'alt': Fore.LIGHTRED_EX},
     'yellow': {'norm': Fore.YELLOW, 'alt': Fore.LIGHTYELLOW_EX},
     'green': {'norm': Fore.GREEN, 'alt': Fore.LIGHTGREEN_EX},
@@ -114,11 +93,28 @@ colors = {
     'bright_blue': {'norm': Fore.LIGHTBLUE_EX, 'alt': Fore.BLUE},
     'bright_magenta': {'norm': Fore.LIGHTMAGENTA_EX, 'alt': Fore.MAGENTA},
     'bright_black': {'norm': Fore.LIGHTBLACK_EX, 'alt': Fore.BLACK},
-    'bright_white': {'norm': Fore.LIGHTWHITE_EX, 'alt': Fore.WHITE},
+    'bright_white': {'norm': Fore.LIGHTWHITE_EX, 'alt': Fore.WHITE}
 }
 
 
-# unpack configs dict
+# Check if config folder exists, create it if missing.
+if os.path.exists(config_path) == False:
+    os.makedirs(config_path)
+
+# Check if config file exists, create it if missing.
+if os.path.exists(config_file) == False:
+    with open(config_file, 'w', encoding='utf-8') as settingsFile:
+        settingsFile.write(DEFAULT_CONFIGS)
+
+# Read-in configs
+try:
+    config.read(config_file, encoding='utf-8')
+except:
+    print(f"{Fore.RED}FATAL: Reading config file failed!")
+    sys.exit(1)
+
+
+# Unpack configs dict
 #TODO: #2 Nest each variable in a try/except to fall back to a default value if the user messed up the config file.
 try:
     # variable_name = config["Settings"]["VarInFile"]
@@ -148,10 +144,10 @@ try:
     prioritySymbol3 = config["Settings"]["prioritySymbol3"].replace('\"', '')
     prioritySymbol4 = config["Settings"]["prioritySymbol4"].replace('\"', '')
 
-
 except Exception as e:
     print(f"{Fore.RED}{e}")
 
+# Priority tables
 priority_color = {
     1: priorityColor1,
     2: priorityColor2,
@@ -166,30 +162,38 @@ priority_symbol = {
     4: prioritySymbol4,
 }
 
-# if path does not exist, create it.
+
+# Prepare for data read-in
+data_path_file = data_path + data_file
+data = {}
+
+# Check if data folder exists, create it if missing.
 data_path = os.path.expanduser(data_path)
 if os.path.exists(data_path) == False:
     os.makedirs(data_path)
 
-data_path_file = data_path + data_file
-data = {}
 
-# if file does not exist, create it.
+# Check if file exists, create it if missing.
 if os.path.exists(data_path_file) == False:
     with open(data_path_file, 'w') as json_file:
         json.dump(data, json_file, indent=4)
 
+# Read-in data
 with open(data_path_file, 'r') as json_file:
     data = json.load(json_file)
 
+#endregion
 
+
+
+#region: Functions
 def add_new_task(task: dict):
     """Adds a new task dict to the data dict"""
     data.update(task)
 
 
 def update_tasks(override_data=None):
-    """Write data dict to json"""
+    """Write data dict to json. Allows for an optional override_data to use in place of the global data"""
     if override_data is None:
         with open(data_path_file, 'w') as json_file:
             json.dump(data, json_file, indent=4)
@@ -199,9 +203,11 @@ def update_tasks(override_data=None):
 
 
 def color(color_name: str, alternate_style: bool=False) -> str:
+    """Takes a color name like 'red' and returns its colorama formatter string.
+    alternate_style switches the bright status of the given color."""
     key1 = color_name
     key2 = 'norm' if not alternate_style else 'alt'
-    return colors[key1][key2]
+    return COLORS[key1][key2]
 
 def color_gradient(scale: int) -> str:
     """Takes a float between 0 and 100 inclusive and returns a colorama color"""
@@ -265,12 +271,15 @@ def check_for_priority(text: str) -> tuple:
     return (False, DEFAULT_PRIORITY)
 
 def render_tasks(prolog: str="") -> None:
-    #TODO finally, the fun part!
-    fresh_data = {}
-    with open(data_path_file, 'r') as json_file:
-        fresh_data = json.load(json_file)
+    """Print the tasks in all their glory"""
 
+    # Get a fresh copy of data from file ()
+    fresh_data = {}
+    with open(data_path_file, 'r') as json_file: #TODO: #3 This function should take an optional passed dict for printing if it is not going to use the global data.
+        fresh_data = json.load(json_file)
     data_copy = copy.deepcopy(fresh_data)
+
+    # Count up the tasks and their status
     done, working, pending = 0, 0, 0
     for key, task in fresh_data.items():
         status = task['status']
@@ -283,25 +292,33 @@ def render_tasks(prolog: str="") -> None:
         elif status in [4]:
             data_copy.pop(key)
     total = done + working + pending
+
+    # Calculate percent complete
     if total == 0:
         rate = 100
     else:
         rate = int((done / total) * 100)
+    
+    # Calculate the width of printout (length of longest description and a buffer)
+    buffer = 20
     desc_lens = []
     for task in data_copy.values():
         desc_lens.append(len(task['desc']))
-    buffer = 20
     if len(desc_lens) == 0:
         width = buffer
     else:
         width = max(desc_lens) + buffer
+
+    # Format and prep line elements for printout
     header = ("\n") + "❮❮❮ tasky ❯❯❯".center(int(width*0.8)) + "\n"
     boarder = [color(boarderColor) + "┍" + ("━"*width),
                 " " + (color(boarderColor) + "─"*width) + "┚"]
     title = f"{color(boarderColor)}│{Style.RESET_ALL}  Tasks {color(boarderColor)}[{done}/{total}]"
     complete_stat = f"{color_gradient(rate)}{str(rate).rjust(3)}%{color(boarderColor)} of all tasks complete.{Style.RESET_ALL}"
     breakdown_stat = f"{color(completeTaskColor)}{str(done).rjust(3)}{color(boarderColor)} done · {color(startedTaskColor)}{working}{color(boarderColor)} in-progress · {color(stoppedTaskColor)}{pending}{color(boarderColor)} pending"
+    
     def get_task_lines():
+        """Prints a formatted line for each task"""
         for key, task in data_copy.items():
             if task['flag']:
                 if task['status'] == 3:
