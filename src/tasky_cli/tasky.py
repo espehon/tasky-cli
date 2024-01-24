@@ -310,10 +310,9 @@ def render_tasks(prolog: str="") -> None:
         width = max(desc_lens) + buffer
 
     # Format and prep line elements for printout
-    header = ("\n") + "❮❮❮ tasky ❯❯❯".center(int(width*0.8)) + "\n"
     boarder = [color(boarderColor) + "┍" + ("━"*width),
                 " " + (color(boarderColor) + "─"*width) + "┚"]
-    title = f"{color(boarderColor)}│{Style.RESET_ALL}  Tasks {color(boarderColor)}[{done}/{total}]"
+    title = f"{color(boarderColor)}│{Style.RESET_ALL}  Tasky {color(boarderColor)}[{done}/{total}]"
     complete_stat = f"{color_gradient(rate)}{str(rate).rjust(3)}%{color(boarderColor)} of all tasks complete.{Style.RESET_ALL}"
     breakdown_stat = f"{color(completeTaskColor)}{str(done).rjust(3)}{color(boarderColor)} done · {color(startedTaskColor)}{working}{color(boarderColor)} in-progress · {color(stoppedTaskColor)}{pending}{color(boarderColor)} pending"
     
@@ -353,7 +352,7 @@ def render_tasks(prolog: str="") -> None:
             
             print(id + symbol + desc + days)
 
-    print(header)
+    print() # print a blank line to help breakup the clutter
     if prolog != "":
         print(f"{prolog}\n")
     print(boarder[0])
