@@ -10,6 +10,7 @@ import datetime
 import copy
 from configparser import ConfigParser
 
+from tasky import defaults
 from colorama import Fore, Style, init
 init(autoreset=True)
 
@@ -209,6 +210,7 @@ def color(color_name: str, alternate_style: bool=False) -> str:
     key2 = 'norm' if not alternate_style else 'alt'
     return COLORS[key1][key2]
 
+
 def color_gradient(scale: int) -> str:
     """Takes a float between 0 and 100 inclusive and returns a colorama color"""
     if scale >= 100:
@@ -230,6 +232,7 @@ def color_gradient(scale: int) -> str:
     else:
         return Fore.RED
 
+
 def index_data(current_dict: dict) -> list:
     """
     Return list of keys as int from data dict.
@@ -239,6 +242,7 @@ def index_data(current_dict: dict) -> list:
     for k in current_dict.keys():
         output.append(int(k))
     return output
+
 
 def format_new_task(index: int, task_desc: str, priority: int, flagged: bool) -> dict:
     "Return new task as a dict for storage"
@@ -251,6 +255,7 @@ def format_new_task(index: int, task_desc: str, priority: int, flagged: bool) ->
         "flag": flagged
     }}
     return output
+
 
 def check_for_priority(text: str) -> tuple:
     """
@@ -269,6 +274,7 @@ def check_for_priority(text: str) -> tuple:
                 except:
                     pass
     return (False, DEFAULT_PRIORITY)
+
 
 def render_tasks(prolog: str="") -> None:
     """Print the tasks in all their glory"""
@@ -362,6 +368,7 @@ def render_tasks(prolog: str="") -> None:
     print(complete_stat)
     print(breakdown_stat)
 
+
 def switch_task_status(task_keys):
     updates = 0
     for task_key in task_keys:
@@ -379,6 +386,7 @@ def switch_task_status(task_keys):
     if updates > 0:
         update_tasks()
         render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
+
 
 def mark_tasks_complete(task_keys):
     updates = 0
@@ -398,6 +406,7 @@ def mark_tasks_complete(task_keys):
         update_tasks()
         render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
 
+
 def mark_tasks_deleted(task_keys):
     updates = 0
     for task_key in task_keys:
@@ -414,6 +423,7 @@ def mark_tasks_deleted(task_keys):
         update_tasks()
         render_tasks(f"{updates} task{'' if updates == 1 else 's'} marked for deletion.")
 
+
 def clean_task_list(task_keys, old_data):
     updates = 0
     for key in task_keys:
@@ -429,6 +439,7 @@ def clean_task_list(task_keys, old_data):
     else:
         print("Nothing to clean.")
 
+
 def change_task_priority(task_id, new_priority):
     updates = 0
     if new_priority in PRIORITIES:
@@ -440,6 +451,7 @@ def change_task_priority(task_id, new_priority):
             render_tasks(f"Task #{task_id} set to priority level {new_priority}.")
     else:
         print(f"{new_priority} is not an available priority level.")
+
 
 def flag_tasks(task_keys):
     updates = 0
@@ -454,6 +466,7 @@ def flag_tasks(task_keys):
         update_tasks()
         render_tasks(f"{updates} task{'' if updates == 1 else 's'} updated.")
 
+
 def edit_task(task_key):
     if task_key in data:
         new_desc = input(f"Enter new task description for #{task_key}...\n>>> ").strip()
@@ -462,6 +475,7 @@ def edit_task(task_key):
         render_tasks(f"Task #{task_key} has been edited.")
     else:
         print(f"'{task_key}' is an invalid task id.")
+
 
 # Main
 tasks_index = index_data(data)
