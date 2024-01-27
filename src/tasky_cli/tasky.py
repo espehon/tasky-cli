@@ -15,7 +15,7 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 # Set user paths
-home = os.path.expanduser("~")
+# home = os.path.expanduser("~") # not needed?
 config_path = os.path.expanduser("~/.config/tasky/")
 config_file = f"{config_path}tasky.ini"
 
@@ -105,7 +105,7 @@ if os.path.exists(config_path) == False:
 # Check if config file exists, create it if missing.
 if os.path.exists(config_file) == False:
     with open(config_file, 'w', encoding='utf-8') as settingsFile:
-        settingsFile.write(DEFAULT_CONFIGS)
+        settingsFile.write(defaults.default_configs)
 
 # Read-in configs
 try:
@@ -117,12 +117,24 @@ except:
 
 # Unpack configs dict
 #TODO: #2 Nest each variable in a try/except to fall back to a default value if the user messed up the config file.
-try:
     # variable_name = config["Settings"]["VarInFile"]
+config_errors = []
+try:
     data_path = config["Settings"]["taskPath"].replace('\"', '')
+except:
+    data_path = defaults.DEFAULT_VALUES['dataFolder']
+    config_errors.append('dataFolder')
+try:
     data_file = config["Settings"]["taskFile"].replace('\"', '')
-
+except:
+    data_file = defaults.DEFAULT_VALUES['dataFile']
+    config_errors.append('dataFile')
+try:
     newTaskSymbol = config["Settings"]["newTaskSymbol"].replace('\"', '')
+except:
+    newTaskSymbol = defaults.DEFAULT_VALUES['newTaskSymbol']
+    config_errors.append('newTaskSymbol')
+    
     startedTaskSymbol = config["Settings"]["startedTaskSymbol"].replace('\"', '')
     stoppedTaskSymbol = config["Settings"]["stoppedTaskSymbol"].replace('\"', '')
     completeTaskSymbol = config["Settings"]["completeTaskSymbol"].replace('\"', '')
@@ -145,8 +157,6 @@ try:
     prioritySymbol3 = config["Settings"]["prioritySymbol3"].replace('\"', '')
     prioritySymbol4 = config["Settings"]["prioritySymbol4"].replace('\"', '')
 
-except Exception as e:
-    print(f"{Fore.RED}{e}")
 
 # Priority tables
 priority_color = {
