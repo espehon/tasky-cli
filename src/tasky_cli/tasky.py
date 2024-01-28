@@ -134,28 +134,96 @@ try:
 except:
     newTaskSymbol = defaults.DEFAULT_VALUES['newTaskSymbol']
     config_errors.append('newTaskSymbol')
-    
+try:
     startedTaskSymbol = config["Settings"]["startedTaskSymbol"].replace('\"', '')
+except:
+    startedTaskSymbol = defaults.DEFAULT_VALUES['startedTaskSymbol']
+    config_errors.append('startedTaskSymbol')
+try:
     stoppedTaskSymbol = config["Settings"]["stoppedTaskSymbol"].replace('\"', '')
+except:
+    stoppedTaskSymbol = defaults.DEFAULT_VALUES['stoppedTaskSymbol']
+    config_errors.append('stoppedTaskSymbol')
+try:
     completeTaskSymbol = config["Settings"]["completeTaskSymbol"].replace('\"', '')
+except:
+    completeTaskSymbol = defaults.DEFAULT_VALUES['completeTaskSymbol']
+    config_errors.append('completeTaskSymbol')
+try:
     flagSymbol = config["Settings"]["flagSymbol"].replace('\"', '')
+except:
+    flagSymbol = defaults.DEFAULT_VALUES['flagSymbol']
+    config_errors.append('flagSymbol')
+try:
     flagSymbolAlt = config["Settings"]["flagSymbolAlt"].replace('\"', '')
-
+except:
+    flagSymbolAlt = defaults.DEFAULT_VALUES['flagSymbolAlt']
+    config_errors.append('flagSymbolAlt')
+try:
     boarderColor = config['Settings']['boarderColor'].replace('\"', '')
+except:
+    boarderColor = defaults.DEFAULT_VALUES['boarderColor']
+    config_errors.append('boarderColor')
+try:
     newTaskColor = config["Settings"]["newTaskColor"].replace('\"', '')
+except:
+    newTaskColor = defaults.DEFAULT_VALUES['newTaskColor']
+    config_errors.append('newTaskColor')
+try:
     startedTaskColor = config["Settings"]["startedTaskColor"].replace('\"', '')
+except:
+    startedTaskColor = defaults.DEFAULT_VALUES['startedTaskColor']
+    config_errors.append('startedTaskColor')
+try:
     stoppedTaskColor = config["Settings"]["stoppedTaskColor"].replace('\"', '')
+except:
+    stoppedTaskColor = defaults.DEFAULT_VALUES['stoppedTaskColor']
+    config_errors.append('stoppedTaskColor')
+try:
     completeTaskColor = config["Settings"]["completeTaskColor"].replace('\"', '')
-
+except:
+    completeTaskColor = defaults.DEFAULT_VALUES['completeTaskColor']
+    config_errors.append('completeTaskColor')
+try:
     priorityColor1 = config["Settings"]["priorityColor1"].replace('\"', '')
+except:
+    priorityColor1 = defaults.DEFAULT_VALUES['priorityColor1']
+    config_errors.append('priorityColor1')
+try:
     priorityColor2 = config["Settings"]["priorityColor2"].replace('\"', '')
+except:
+    priorityColor2 = defaults.DEFAULT_VALUES['priorityColor2']
+    config_errors.append('priorityColor2')
+try:
     priorityColor3 = config["Settings"]["priorityColor3"].replace('\"', '')
+except:
+    priorityColor3 = defaults.DEFAULT_VALUES['priorityColor3']
+    config_errors.append('priorityColor3')
+try:
     priorityColor4 = config["Settings"]["priorityColor4"].replace('\"', '')
-
+except:
+    priorityColor4 = defaults.DEFAULT_VALUES['priorityColor4']
+    config_errors.append('priorityColor4')
+try:
     prioritySymbol1 = config["Settings"]["prioritySymbol1"].replace('\"', '')
+except:
+    prioritySymbol1 = defaults.DEFAULT_VALUES['prioritySymbol1']
+    config_errors.append('prioritySymbol1')
+try:
     prioritySymbol2 = config["Settings"]["prioritySymbol2"].replace('\"', '')
+except:
+    prioritySymbol2 = defaults.DEFAULT_VALUES['prioritySymbol2']
+    config_errors.append('prioritySymbol2')
+try:
     prioritySymbol3 = config["Settings"]["prioritySymbol3"].replace('\"', '')
+except:
+    prioritySymbol3 = defaults.DEFAULT_VALUES['prioritySymbol3']
+    config_errors.append('prioritySymbol3')
+try:
     prioritySymbol4 = config["Settings"]["prioritySymbol4"].replace('\"', '')
+except:
+    prioritySymbol4 = defaults.DEFAULT_VALUES['prioritySymbol4']
+    config_errors.append('prioritySymbol4')
 
 
 # Priority tables
