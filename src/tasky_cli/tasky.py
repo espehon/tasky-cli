@@ -426,9 +426,9 @@ def render_tasks(prolog: str="") -> None:
         for key, task in data_copy.items():
             if task['flag']:
                 if task['status'] == 3:
-                    flag = flagSymbolAlt
+                    flag = f"{color(boarderColor)}{flagSymbolAlt}{Style.RESET_ALL}"
                 else:
-                    flag = flagSymbol
+                    flag = f"{color(priority_color[1],alternate_style=True)}{flagSymbol}{Style.RESET_ALL}"
             else:
                 flag = "  "
             id = f"{flag}{color(boarderColor) + key.rjust(3) + '. ' + Style.RESET_ALL}"

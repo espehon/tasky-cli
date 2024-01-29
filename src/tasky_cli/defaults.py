@@ -11,7 +11,7 @@ else:
 
 
 DEFAULT_VALUES = {
-    'dataFolder': '~/.local/tasky/',
+    'dataFolder': '~/.local/share/tasky/',
     'dataFile': 'tasky.json',
     'newTaskSymbol': {
         'fancy': '[!]',
