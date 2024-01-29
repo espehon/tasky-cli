@@ -3,7 +3,7 @@
 
 import sys
 
-from tasky import tasky
+from tasky_cli import tasky
 
 
 if __name__ == "__main__":

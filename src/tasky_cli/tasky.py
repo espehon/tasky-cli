@@ -10,7 +10,7 @@ import datetime
 import copy
 from configparser import ConfigParser
 
-from tasky import defaults
+from tasky_cli import defaults
 from colorama import Fore, Style, init
 init(autoreset=True)
 
@@ -47,34 +47,34 @@ PRIORITIES = (1, 2, 3, 4)
 DEFAULT_PRIORITY = 1
 
 #TODO: #4 There should be an ASCII only set of characters for older terminals that tasky defaults too provided there is a way to get check a terminals ability.
-DEFAULT_CONFIGS = """\
-[Settings]
-taskPath = "~/.local/share/tasky/"
-taskFile = "tasky.json"
+# DEFAULT_CONFIGS = """\
+# [Settings]
+# taskPath = "~/.local/share/tasky/"
+# taskFile = "tasky.json"
 
-newTaskSymbol = "[!]"
-startedTaskSymbol = "[▶]"
-stoppedTaskSymbol = "[.]"
-completeTaskSymbol = "✔ "
-flagSymbol = "🏳 "
-flagSymbolAlt = "🏴"
+# newTaskSymbol = "[!]"
+# startedTaskSymbol = "[▶]"
+# stoppedTaskSymbol = "[.]"
+# completeTaskSymbol = "✔ "
+# flagSymbol = "🏳 "
+# flagSymbolAlt = "🏴"
 
-boarderColor = "bright_black"
-newTaskColor = "red"
-startedTaskColor = "bright_yellow"
-stoppedTaskColor = "bright_red"
-completeTaskColor = "bright_green"
+# boarderColor = "bright_black"
+# newTaskColor = "red"
+# startedTaskColor = "bright_yellow"
+# stoppedTaskColor = "bright_red"
+# completeTaskColor = "bright_green"
 
-priorityColor1 = "white"
-priorityColor2 = "cyan"
-priorityColor3 = "yellow"
-priorityColor4 = "red"
+# priorityColor1 = "white"
+# priorityColor2 = "cyan"
+# priorityColor3 = "yellow"
+# priorityColor4 = "red"
 
-prioritySymbol1 = ""
-prioritySymbol2 = "(!)"
-prioritySymbol3 = "(!!)"
-prioritySymbol4 = "(!!!)"
-"""
+# prioritySymbol1 = ""
+# prioritySymbol2 = "(!)"
+# prioritySymbol3 = "(!!)"
+# prioritySymbol4 = "(!!!)"
+# """
 
 # Color name mapping for colorama
 COLORS = {
@@ -119,110 +119,131 @@ except:
 #TODO: #2 Nest each variable in a try/except to fall back to a default value if the user messed up the config file.
     # variable_name = config["Settings"]["VarInFile"]
 config_errors = []
+
 try:
     data_path = config["Settings"]["taskPath"].replace('\"', '')
 except:
     data_path = defaults.DEFAULT_VALUES['dataFolder']
     config_errors.append('dataFolder')
+
 try:
     data_file = config["Settings"]["taskFile"].replace('\"', '')
 except:
     data_file = defaults.DEFAULT_VALUES['dataFile']
     config_errors.append('dataFile')
+
 try:
     newTaskSymbol = config["Settings"]["newTaskSymbol"].replace('\"', '')
 except:
-    newTaskSymbol = defaults.DEFAULT_VALUES['newTaskSymbol']
+    newTaskSymbol = defaults.DEFAULT_VALUES['newTaskSymbol']['plain']
     config_errors.append('newTaskSymbol')
+
 try:
     startedTaskSymbol = config["Settings"]["startedTaskSymbol"].replace('\"', '')
 except:
-    startedTaskSymbol = defaults.DEFAULT_VALUES['startedTaskSymbol']
+    startedTaskSymbol = defaults.DEFAULT_VALUES['startedTaskSymbol']['plain']
     config_errors.append('startedTaskSymbol')
+
 try:
     stoppedTaskSymbol = config["Settings"]["stoppedTaskSymbol"].replace('\"', '')
 except:
-    stoppedTaskSymbol = defaults.DEFAULT_VALUES['stoppedTaskSymbol']
+    stoppedTaskSymbol = defaults.DEFAULT_VALUES['stoppedTaskSymbol']['plain']
     config_errors.append('stoppedTaskSymbol')
+
 try:
     completeTaskSymbol = config["Settings"]["completeTaskSymbol"].replace('\"', '')
 except:
-    completeTaskSymbol = defaults.DEFAULT_VALUES['completeTaskSymbol']
+    completeTaskSymbol = defaults.DEFAULT_VALUES['completeTaskSymbol']['plain']
     config_errors.append('completeTaskSymbol')
+
 try:
     flagSymbol = config["Settings"]["flagSymbol"].replace('\"', '')
 except:
-    flagSymbol = defaults.DEFAULT_VALUES['flagSymbol']
+    flagSymbol = defaults.DEFAULT_VALUES['flagSymbol']['plain']
     config_errors.append('flagSymbol')
+
 try:
     flagSymbolAlt = config["Settings"]["flagSymbolAlt"].replace('\"', '')
 except:
-    flagSymbolAlt = defaults.DEFAULT_VALUES['flagSymbolAlt']
+    flagSymbolAlt = defaults.DEFAULT_VALUES['flagSymbolAlt']['plain']
     config_errors.append('flagSymbolAlt')
+
 try:
     boarderColor = config['Settings']['boarderColor'].replace('\"', '')
 except:
     boarderColor = defaults.DEFAULT_VALUES['boarderColor']
     config_errors.append('boarderColor')
+
 try:
     newTaskColor = config["Settings"]["newTaskColor"].replace('\"', '')
 except:
     newTaskColor = defaults.DEFAULT_VALUES['newTaskColor']
     config_errors.append('newTaskColor')
+
 try:
     startedTaskColor = config["Settings"]["startedTaskColor"].replace('\"', '')
 except:
     startedTaskColor = defaults.DEFAULT_VALUES['startedTaskColor']
     config_errors.append('startedTaskColor')
+
 try:
     stoppedTaskColor = config["Settings"]["stoppedTaskColor"].replace('\"', '')
 except:
     stoppedTaskColor = defaults.DEFAULT_VALUES['stoppedTaskColor']
     config_errors.append('stoppedTaskColor')
+
 try:
     completeTaskColor = config["Settings"]["completeTaskColor"].replace('\"', '')
 except:
     completeTaskColor = defaults.DEFAULT_VALUES['completeTaskColor']
     config_errors.append('completeTaskColor')
+
 try:
     priorityColor1 = config["Settings"]["priorityColor1"].replace('\"', '')
 except:
     priorityColor1 = defaults.DEFAULT_VALUES['priorityColor1']
     config_errors.append('priorityColor1')
+
 try:
     priorityColor2 = config["Settings"]["priorityColor2"].replace('\"', '')
 except:
     priorityColor2 = defaults.DEFAULT_VALUES['priorityColor2']
     config_errors.append('priorityColor2')
+
 try:
     priorityColor3 = config["Settings"]["priorityColor3"].replace('\"', '')
 except:
     priorityColor3 = defaults.DEFAULT_VALUES['priorityColor3']
     config_errors.append('priorityColor3')
+
 try:
     priorityColor4 = config["Settings"]["priorityColor4"].replace('\"', '')
 except:
     priorityColor4 = defaults.DEFAULT_VALUES['priorityColor4']
     config_errors.append('priorityColor4')
+
 try:
     prioritySymbol1 = config["Settings"]["prioritySymbol1"].replace('\"', '')
 except:
-    prioritySymbol1 = defaults.DEFAULT_VALUES['prioritySymbol1']
+    prioritySymbol1 = defaults.DEFAULT_VALUES['prioritySymbol1']['plain']
     config_errors.append('prioritySymbol1')
+
 try:
     prioritySymbol2 = config["Settings"]["prioritySymbol2"].replace('\"', '')
 except:
-    prioritySymbol2 = defaults.DEFAULT_VALUES['prioritySymbol2']
+    prioritySymbol2 = defaults.DEFAULT_VALUES['prioritySymbol2']['plain']
     config_errors.append('prioritySymbol2')
+
 try:
     prioritySymbol3 = config["Settings"]["prioritySymbol3"].replace('\"', '')
 except:
-    prioritySymbol3 = defaults.DEFAULT_VALUES['prioritySymbol3']
+    prioritySymbol3 = defaults.DEFAULT_VALUES['prioritySymbol3']['plain']
     config_errors.append('prioritySymbol3')
+
 try:
     prioritySymbol4 = config["Settings"]["prioritySymbol4"].replace('\"', '')
 except:
-    prioritySymbol4 = defaults.DEFAULT_VALUES['prioritySymbol4']
+    prioritySymbol4 = defaults.DEFAULT_VALUES['prioritySymbol4']['plain']
     config_errors.append('prioritySymbol4')
 
 
@@ -243,11 +264,11 @@ priority_symbol = {
 
 
 # Prepare for data read-in
+data_path = os.path.expanduser(data_path)
 data_path_file = data_path + data_file
 data = {}
 
 # Check if data folder exists, create it if missing.
-data_path = os.path.expanduser(data_path)
 if os.path.exists(data_path) == False:
     os.makedirs(data_path)
 
