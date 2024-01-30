@@ -21,11 +21,12 @@ config_file = f"{config_path}tasky.ini"
 
 # Set argument parsing
 parser = argparse.ArgumentParser(
-    description="Tasky: A to-do list program!\n\nBased off of klaudiosinani's Taskbook for JavaScript.",
-    epilog="Examples: ts --task this is a new task, ts --switch 1, ts --complete 1",
+    description="Tasky: A to-do list program!\nBased off of klaudiosinani's Taskbook for JavaScript.",
+    epilog="Examples: 'ts --task this is a new task', 'ts --switch 1', 'ts --complete 1'\nHomepage: https://github.com/espehon/tasky-cli",
     allow_abbrev=False,
     add_help=False,
-    usage="ts [option] <arguments>    'try: ts --help'"
+    usage="ts [option] <arguments>    'try: ts --help'",
+    formatter_class=argparse.RawTextHelpFormatter
 )
 
 parser.add_argument('-?', '--help', action='help', help='Show this help message and exit.')
