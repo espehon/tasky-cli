@@ -462,7 +462,7 @@ def render_tasks(prolog: str="") -> None:
     if config_errors:
         print(f"{len(config_errors)} config(s) missing. try 'ts --configs' for details")
     if prolog != "":
-        print(f"{prolog}\n")
+        print(f"{prolog}")
     print(boarder[0])
     print(title)
     get_task_lines()
