@@ -37,6 +37,7 @@ parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='sto
 parser.add_argument('-e', '--edit', nargs=1, metavar='T', action='store', type=int, help='Enter edit mode on a task')
 parser.add_argument('-d', '--delete', nargs='+', metavar='T', action='store', type=int, help='Mark task [T] for deletion')
 parser.add_argument('--clean', action='store_true', help='Remove complete/deleted tasks and reset indices')
+parser.add_argument('--configs', action='store_true', help='Check/reset configs')
 parser.add_argument('text', nargs=argparse.REMAINDER, help='Task description that is used with --task')
 
 config = ConfigParser()
@@ -458,6 +459,8 @@ def render_tasks(prolog: str="") -> None:
             print(id + symbol + desc + days)
 
     print() # print a blank line to help breakup the clutter
+    if config_errors:
+        print(f"{len(config_errors)} config(s) missing. try 'ts --configs' for details")
     if prolog != "":
         print(f"{prolog}\n")
     print(boarder[0])
@@ -576,6 +579,28 @@ def edit_task(task_key):
         print(f"'{task_key}' is an invalid task id.")
 
 
+def check_configs(reset_keyword: str=""):
+    if reset_keyword == "reset":
+        repair_configs(warn=True)
+    elif config_errors:
+        print('Missing configurations:')
+        for error in config_errors:
+            print(f"\t{error}")
+        print("\nUse 'ts --configs reset' to reset the config file")
+    else:
+        print("No config errors found.")
+
+
+def repair_configs(warn: bool=True):
+    if warn:
+        user = input("Overwrite configuration file with defaults? [y/N] > ").lower()
+        if user == "y":
+            with open(config_file, 'w', encoding='utf-8') as settingsFile:
+                settingsFile.write(defaults.default_configs)
+            print(f"{config_file} reset.")
+
+    
+
 # Main
 tasks_index = index_data(data)
 
@@ -640,6 +665,11 @@ def tasky(argv=None):
     elif args.edit:
         key = str(args.edit[0])
         edit_task(key)
+    
+
+    # --configs
+    elif args.configs:
+        check_configs(passed_string.lower())
 
 
     # no args
