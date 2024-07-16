@@ -9,10 +9,16 @@ import json
 import datetime
 import copy
 from configparser import ConfigParser
+import importlib.metadata
 
 from tasky_cli import defaults
 from colorama import Fore, Style, init
 init(autoreset=True)
+
+try:
+    __version__ = f"tasky {importlib.metadata.version('tasky_cli')} from tasky_cli"
+except importlib.metadata.PackageNotFoundError:
+    __version__ = "Package not installed..."
 
 # Set user paths
 # home = os.path.expanduser("~") # not needed?
@@ -30,6 +36,7 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument('-?', '--help', action='help', help='Show this help message and exit.')
+parser.add_argument('-v', '--version', action='version', version=__version__, help="Show package version and exit.")
 parser.add_argument('-t', '--task', action='store_true', help='Add a new task')
 parser.add_argument('-c', '--complete', nargs='+', metavar='T', action='store', type=int, help='Mark task(s) complete')
 parser.add_argument('-s', '--switch', nargs='+', metavar='T', action='store', type=int, help='Toggle task(s) as started/stopped')
@@ -118,8 +125,7 @@ except:
 
 
 # Unpack configs dict
-#TODO: #2 Nest each variable in a try/except to fall back to a default value if the user messed up the config file.
-    # variable_name = config["Settings"]["VarInFile"]
+# variable_name = config["Settings"]["VarInFile"]
 config_errors = []
 
 try:
