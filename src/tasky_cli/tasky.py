@@ -11,7 +11,11 @@ import copy
 from configparser import ConfigParser
 import importlib.metadata
 
-from tasky_cli import defaults
+try:
+    from tasky_cli import defaults
+except ModuleNotFoundError:
+    import defaults
+
 from colorama import Fore, Style, init
 init(autoreset=True)
 
