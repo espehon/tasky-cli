@@ -46,6 +46,7 @@ parser.add_argument('-c', '--complete', nargs='+', metavar='T', action='store', 
 parser.add_argument('-s', '--switch', nargs='+', metavar='T', action='store', type=int, help='Toggle task(s) as started/stopped')
 parser.add_argument('-f', '--flag', nargs='+', metavar='T', action='store', type=int, help='Flag task(s) with astrict (*)')
 parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='store', type=int, help='Set the priority of task [T] to [P]')
+parser.add_argument('-l', '--later', nargs=1, metavar='D' ,action='store', help='Buffer a task for later. Enter [D] as YYYY-MM-DD or days from today. Prompts for task description after.')
 parser.add_argument('-e', '--edit', nargs=1, metavar='T', action='store', type=int, help='Enter edit mode on a task')
 parser.add_argument('-d', '--delete', nargs='+', metavar='T', action='store', type=int, help='Mark task [T] for deletion')
 parser.add_argument('--clean', action='store_true', help='Remove complete/deleted tasks and reset indices')
@@ -56,8 +57,8 @@ config = ConfigParser()
 
 
 # Set Variables / Constants
-PRIORITIES = (1, 2, 3, 4)
-DEFAULT_PRIORITY = 1
+PRIORITIES = (0, 1, 2, 3)
+DEFAULT_PRIORITY = 0
 
 #TODO: #4 There should be an ASCII only set of characters for older terminals that tasky defaults too provided there is a way to get check a terminals ability.
 # DEFAULT_CONFIGS = """\
@@ -78,15 +79,15 @@ DEFAULT_PRIORITY = 1
 # stoppedTaskColor = "bright_red"
 # completeTaskColor = "bright_green"
 
-# priorityColor1 = "white"
-# priorityColor2 = "cyan"
-# priorityColor3 = "yellow"
-# priorityColor4 = "red"
+# priorityColor0 = "white"
+# priorityColor1 = "cyan"
+# priorityColor2 = "yellow"
+# priorityColor3 = "red"
 
-# prioritySymbol1 = ""
-# prioritySymbol2 = "(!)"
-# prioritySymbol3 = "(!!)"
-# prioritySymbol4 = "(!!!)"
+# prioritySymbol0 = ""
+# prioritySymbol1 = "(!)"
+# prioritySymbol2 = "(!!)"
+# prioritySymbol3 = "(!!!)"
 # """
 
 # Color name mapping for colorama
@@ -143,6 +144,12 @@ try:
 except:
     data_file = defaults.DEFAULT_VALUES['dataFile']
     config_errors.append('dataFile')
+
+try:
+    schedule_file = config["Settings"]["scheduleFile"].replace('\"', '')
+except:
+    schedule_file = defaults.DEFAULT_VALUES['scheduleFile']
+    config_errors.append('scheduleFile')
 
 try:
     newTaskSymbol = config["Settings"]["newTaskSymbol"].replace('\"', '')
@@ -211,6 +218,12 @@ except:
     config_errors.append('completeTaskColor')
 
 try:
+    priorityColor0 = config["Settings"]["priorityColor0"].replace('\"', '')
+except:
+    priorityColor0 = defaults.DEFAULT_VALUES['priorityColor0']
+    config_errors.append('priorityColor0')
+
+try:
     priorityColor1 = config["Settings"]["priorityColor1"].replace('\"', '')
 except:
     priorityColor1 = defaults.DEFAULT_VALUES['priorityColor1']
@@ -229,10 +242,10 @@ except:
     config_errors.append('priorityColor3')
 
 try:
-    priorityColor4 = config["Settings"]["priorityColor4"].replace('\"', '')
+    prioritySymbol0 = config["Settings"]["prioritySymbol0"].replace('\"', '')
 except:
-    priorityColor4 = defaults.DEFAULT_VALUES['priorityColor4']
-    config_errors.append('priorityColor4')
+    prioritySymbol0 = defaults.DEFAULT_VALUES['prioritySymbol0']['plain']
+    config_errors.append('prioritySymbol0')
 
 try:
     prioritySymbol1 = config["Settings"]["prioritySymbol1"].replace('\"', '')
@@ -252,26 +265,20 @@ except:
     prioritySymbol3 = defaults.DEFAULT_VALUES['prioritySymbol3']['plain']
     config_errors.append('prioritySymbol3')
 
-try:
-    prioritySymbol4 = config["Settings"]["prioritySymbol4"].replace('\"', '')
-except:
-    prioritySymbol4 = defaults.DEFAULT_VALUES['prioritySymbol4']['plain']
-    config_errors.append('prioritySymbol4')
-
 
 # Priority tables
 priority_color = {
+    0: priorityColor0,
     1: priorityColor1,
     2: priorityColor2,
     3: priorityColor3,
-    4: priorityColor4,
 }
 
 priority_symbol = {
+    0: prioritySymbol0,
     1: prioritySymbol1,
     2: prioritySymbol2,
     3: prioritySymbol3,
-    4: prioritySymbol4,
 }
 
 
@@ -302,6 +309,9 @@ with open(data_path_file, 'r') as json_file:
 def add_new_task(task: dict):
     """Adds a new task dict to the data dict"""
     data.update(task)
+
+def schedule_task(date: str):
+    pass
 
 
 def update_tasks(override_data=None):
@@ -636,6 +646,9 @@ def tasky(argv=None):
         add_new_task(new_task)
         update_tasks()
         render_tasks("New task added.")
+    
+    elif args.later:
+        pass
 
     # --switch
     elif args.switch:
