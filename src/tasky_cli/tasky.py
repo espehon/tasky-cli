@@ -26,7 +26,7 @@ except importlib.metadata.PackageNotFoundError:
 
 # Set user paths
 # home = os.path.expanduser("~") # not needed?
-config_path = os.path.expanduser("~/.config/tasky/")
+config_path = os.path.expanduser("~/.config/tasky/").replace('\\', '/')
 config_file = f"{config_path}tasky.ini"
 
 # Set argument parsing
@@ -45,7 +45,7 @@ parser.add_argument('-t', '--task', action='store_true', help='Add a new task')
 parser.add_argument('-c', '--complete', nargs='+', metavar='T', action='store', type=int, help='Mark task(s) complete')
 parser.add_argument('-s', '--switch', nargs='+', metavar='T', action='store', type=int, help='Toggle task(s) as started/stopped')
 parser.add_argument('-f', '--flag', nargs='+', metavar='T', action='store', type=int, help='Flag task(s) with astrict (*)')
-parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='store', type=int, help='Set the priority of task [T] to [P]')
+parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='store', type=int, help='Set the priority of task [T] to [P]. [P] = (0, 1. 2, 3)')
 parser.add_argument('-l', '--later', nargs=1, metavar='D' ,action='store', help='Buffer a task for later. Enter [D] as YYYY-MM-DD or days from today. Prompts for task description after.')
 parser.add_argument('-e', '--edit', nargs=1, metavar='T', action='store', type=int, help='Enter edit mode on a task')
 parser.add_argument('-d', '--delete', nargs='+', metavar='T', action='store', type=int, help='Mark task [T] for deletion')
@@ -59,36 +59,6 @@ config = ConfigParser()
 # Set Variables / Constants
 PRIORITIES = (0, 1, 2, 3)
 DEFAULT_PRIORITY = 0
-
-#TODO: #4 There should be an ASCII only set of characters for older terminals that tasky defaults too provided there is a way to get check a terminals ability.
-# DEFAULT_CONFIGS = """\
-# [Settings]
-# taskPath = "~/.local/share/tasky/"
-# taskFile = "tasky.json"
-
-# newTaskSymbol = "[!]"
-# startedTaskSymbol = "[▶]"
-# stoppedTaskSymbol = "[.]"
-# completeTaskSymbol = "✔ "
-# flagSymbol = "🏳 "
-# flagSymbolAlt = "🏴"
-
-# boarderColor = "bright_black"
-# newTaskColor = "red"
-# startedTaskColor = "bright_yellow"
-# stoppedTaskColor = "bright_red"
-# completeTaskColor = "bright_green"
-
-# priorityColor0 = "white"
-# priorityColor1 = "cyan"
-# priorityColor2 = "yellow"
-# priorityColor3 = "red"
-
-# prioritySymbol0 = ""
-# prioritySymbol1 = "(!)"
-# prioritySymbol2 = "(!!)"
-# prioritySymbol3 = "(!!!)"
-# """
 
 # Color name mapping for colorama
 COLORS = {
@@ -264,6 +234,11 @@ try:
 except:
     prioritySymbol3 = defaults.DEFAULT_VALUES['prioritySymbol3']['plain']
     config_errors.append('prioritySymbol3')
+
+if config_errors:
+    print(f"Missing the following {len(config_errors)} settings from {config_file}")
+    for e in config_errors:
+        print(f"\t{e}")
 
 
 # Priority tables
@@ -446,11 +421,13 @@ def render_tasks(prolog: str="") -> None:
     def get_task_lines():
         """Prints a formatted line for each task"""
         for key, task in data_copy.items():
+            if task['priority'] not in PRIORITIES:
+                task['priority'] = 0
             if task['flag']:
                 if task['status'] == 3:
                     flag = f"{color(boarderColor)}{flagSymbolAlt}{Style.RESET_ALL}"
                 else:
-                    flag = f"{color(priority_color[1],alternate_style=True)}{flagSymbol}{Style.RESET_ALL}"
+                    flag = f"{color(priority_color[0],alternate_style=True)}{flagSymbol}{Style.RESET_ALL}"
             else:
                 flag = "  "
             id = f"{flag}{color(boarderColor) + key.rjust(3) + '. ' + Style.RESET_ALL}"

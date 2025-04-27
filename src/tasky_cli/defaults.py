@@ -70,6 +70,7 @@ default_configs = f"""\
 [Settings]
 taskPath = "{DEFAULT_VALUES['dataFolder']}"
 taskFile = "{DEFAULT_VALUES['dataFile']}"
+scheduleFile = "{DEFAULT_VALUES['scheduleFile']}"
 
 newTaskSymbol = "{DEFAULT_VALUES['newTaskSymbol'][style]}"
 startedTaskSymbol = "{DEFAULT_VALUES['startedTaskSymbol'][style]}"
