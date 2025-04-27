@@ -259,8 +259,10 @@ priority_symbol = {
 
 # Prepare for data read-in
 data_path = os.path.expanduser(data_path)
-data_path_file = data_path + data_file
+task_data_file = data_path + data_file
 data = {}
+schedule_file_path = data_path + schedule_file
+schedule = {}
 
 # Check if data folder exists, create it if missing.
 if os.path.exists(data_path) == False:
@@ -268,13 +270,18 @@ if os.path.exists(data_path) == False:
 
 
 # Check if file exists, create it if missing.
-if os.path.exists(data_path_file) == False:
-    with open(data_path_file, 'w') as json_file:
+if os.path.exists(task_data_file) is False:
+    with open(task_data_file, 'w') as json_file:
         json.dump(data, json_file, indent=4)
+if os.path.exists(schedule_file_path) is False:
+    with open(schedule_file_path, 'w') as json_file:
+        json.dump(schedule, json_file, indent=4)
 
 # Read-in data
-with open(data_path_file, 'r') as json_file:
+with open(task_data_file, 'r') as json_file:
     data = json.load(json_file)
+with open(schedule_file_path, 'r') as json_file:
+    schedule = json.load(json_file)
 
 #endregion
 
@@ -292,10 +299,10 @@ def schedule_task(date: str):
 def update_tasks(override_data=None):
     """Write data dict to json. Allows for an optional override_data to use in place of the global data"""
     if override_data is None:
-        with open(data_path_file, 'w') as json_file:
+        with open(task_data_file, 'w') as json_file:
             json.dump(data, json_file, indent=4)
     else:
-        with open(data_path_file, 'w') as json_file:
+        with open(task_data_file, 'w') as json_file:
             json.dump(override_data, json_file, indent=4)
 
 
@@ -377,7 +384,7 @@ def render_tasks(prolog: str="") -> None:
 
     # Get a fresh copy of data from file ()
     fresh_data = {}
-    with open(data_path_file, 'r') as json_file: #TODO: #3 This function should take an optional passed dict for printing if it is not going to use the global data.
+    with open(task_data_file, 'r') as json_file: #TODO: #3 This function should take an optional passed dict for printing if it is not going to use the global data.
         fresh_data = json.load(json_file)
     data_copy = copy.deepcopy(fresh_data)
 
