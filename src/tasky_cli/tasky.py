@@ -9,7 +9,8 @@ import json
 import datetime
 import copy
 from configparser import ConfigParser
-import importlib.metadata
+import importlib
+import calendar
 
 try:
     from tasky_cli import defaults
@@ -292,8 +293,62 @@ def add_new_task(task: dict):
     """Adds a new task dict to the data dict"""
     data.update(task)
 
+def print_calendar(date: str) -> None:
+    '''print the a calendar for the month of the given date with the date highlighted.
+    date should be in the format YYYY-MM-DD'''
+    try:
+        date_obj = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+    except ValueError:
+        print(f"'{date}' is not a valid date.")
+        sys.exit(1)
+
+    def highlight_date(date_obj):
+        year = date_obj.year
+        month = date_obj.month
+        day = date_obj.day
+
+        cal = calendar.monthcalendar(year, month)
+        highlighted_cal = ""
+        for week in cal:
+            for date in week:
+                if date == day:
+                    highlighted_cal += f"{Fore.LIGHTCYAN_EX}{date:2}{Style.RESET_ALL}"  # Highlight the date in red
+                else:
+                    highlighted_cal += f"{date:2} "
+            highlighted_cal += "\n"
+    print()
+    print(f"{calendar.month_name[date.month]} {date.year}")
+    print("Su Mo Tu We Th Fr Sa")
+    print(highlight_date(date))
+    print()
+        
+
 def schedule_task(date: str):
-    pass
+    try:
+        days_out = int(date)
+        scheduled_date = datetime.datetime.today() + datetime.timedelta(days=days_out)
+        scheduled_date = scheduled_date.strftime("%Y-%m-%d")
+    except ValueError:
+        try:
+            scheduled_date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        except ValueError:
+            print(f"'{date}' is not a valid date.")
+            sys.exit(1)
+    print_calendar(scheduled_date)
+    task_description = input(f"Enter task description for {scheduled_date}...\n>>> ").strip()
+
+    #TODO store the task in the schedule dict and save to json
+
+    #TODO moke a function to check for scheduled tasks and build any if found
+def process_scheduled_tasks():
+    found_priority = check_for_priority(task_description[-3:])
+
+    if found_priority[0]:
+        task_description = task_description[:-3].strip()
+
+
+
+
 
 
 def update_tasks(override_data=None):
