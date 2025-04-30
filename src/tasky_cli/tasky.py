@@ -324,6 +324,15 @@ def print_calendar(date: str) -> None:
         
 
 def schedule_task(date: str):
+    """Schedule a task for a given date. Date can be in the format YYYY-MM-DD or as a number of days from today."""
+    new_entry = {}
+    schedule_copy = copy.deepcopy(schedule)
+    schedule_keys = index_data(schedule_copy)
+    if len(schedule_keys) == 0:
+        next_key = 1
+    else:
+        next_key = max(schedule_keys) + 1
+
     try:
         days_out = int(date)
         scheduled_date = datetime.datetime.today() + datetime.timedelta(days=days_out)
@@ -336,10 +345,19 @@ def schedule_task(date: str):
             sys.exit(1)
     print_calendar(scheduled_date)
     task_description = input(f"Enter task description for {scheduled_date}...\n>>> ").strip()
+    new_entry = {
+        "scheduled_date": scheduled_date,
+        "task_description": task_description,
+    }
+    schedule[str(next_key)] = new_entry
+    with open(schedule_file_path, 'w') as json_file:
+        json.dump(schedule, json_file, indent=4)
 
-    #TODO store the task in the schedule dict and save to json
 
-    #TODO moke a function to check for scheduled tasks and build any if found
+
+#TODO moke a function to check for scheduled tasks and build any if found
+
+
 def process_scheduled_tasks():
     found_priority = check_for_priority(task_description[-3:])
 
@@ -686,8 +704,11 @@ def tasky(argv=None):
         update_tasks()
         render_tasks("New task added.")
     
+    # --later
     elif args.later:
-        pass
+        date = args.later[0]
+        schedule_task(date)
+        render_tasks("Task scheduled.")
 
     # --switch
     elif args.switch:
