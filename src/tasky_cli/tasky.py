@@ -9,7 +9,7 @@ import json
 import datetime
 import copy
 from configparser import ConfigParser
-import importlib
+import importlib.metadata
 import calendar
 
 try:
@@ -316,10 +316,11 @@ def print_calendar(date: str) -> None:
                 else:
                     highlighted_cal += f"{date:2} "
             highlighted_cal += "\n"
+        return highlighted_cal
     print()
-    print(f"{calendar.month_name[date.month]} {date.year}")
+    print(f"{calendar.month_name[date_obj.month]} {date_obj.year}")
     print("Su Mo Tu We Th Fr Sa")
-    print(highlight_date(date))
+    print(highlight_date(date_obj))
     print()
         
 
@@ -336,10 +337,11 @@ def schedule_task(date: str):
     try:
         days_out = int(date)
         scheduled_date = datetime.datetime.today() + datetime.timedelta(days=days_out)
-        scheduled_date = scheduled_date.strftime("%Y-%m-%d")
+        scheduled_date = scheduled_date.strftime("%Y-%m-%d") # Date to str
     except ValueError:
         try:
-            scheduled_date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+            datetime.datetime.strptime(date, "%Y-%m-%d").date()
+            scheduled_date = date
         except ValueError:
             print(f"'{date}' is not a valid date.")
             sys.exit(1)
@@ -452,8 +454,62 @@ def check_for_priority(text: str) -> tuple:
     return (False, DEFAULT_PRIORITY)
 
 
+def add_scheduled_tasks():
+    """Check the schedule file for any tasks that are due today and print them out"""
+    today = datetime.datetime.today().date()
+    tasks_to_add = {}
+    schedule_copy = copy.deepcopy(schedule)
+
+    # move due tasks from schedule to tasks_to_add
+    for key, task in schedule_copy.items():
+        if datetime.datetime.strptime(task['scheduled_date'], "%Y-%m-%d").date() <= today:
+            #TODO: left off here.
+            tasks_to_add[key] = task
+            schedule.pop(key)
+    
+    if len(tasks_to_add) > 0:
+        # re-order schedule due to removed tasks and overwrite json file
+        new_schedule = {}
+        for index, task in enumerate(schedule.values()):
+            new_schedule[str(index + 1)] = task
+        with open(schedule_file_path, 'w') as file:
+            json.dump(new_schedule, file, indent=4)
+
+        # Get a fresh copy of data from file ()
+        fresh_data = {}
+        with open(task_data_file, 'r') as json_file: #TODO: #3 This function should take an optional passed dict for printing if it is not going to use the global data.
+            fresh_data = json.load(json_file)
+        data_copy = copy.deepcopy(fresh_data)
+
+        # actually add the due tasks
+        added_tasks = 0
+        tasks_keys = index_data(data_copy)
+        if len(tasks_keys) == 0:
+            next_key = 1
+        else:
+            next_key = max(tasks_index) + 1
+        
+        for key, task in tasks_to_add.items():
+            desc = task['task_description']
+            found_priority = check_for_priority(desc[-3:])
+            if found_priority[0]:
+                desc = desc[:-3].strip()
+            new_task = format_new_task(next_key, desc, found_priority[1], False)
+            data_copy.update(new_task)
+            added_tasks += 1
+            next_key += 1
+        update_tasks(data_copy)
+        return added_tasks
+    return 0
+
+
 def render_tasks(prolog: str="") -> None:
     """Print the tasks in all their glory"""
+
+    # check for and add scheduled tasks
+    num_scheduled_tasks =  add_scheduled_tasks()
+    if num_scheduled_tasks > 0:
+        prolog = f"{prolog}\n{num_scheduled_tasks} scheduled tasks added."
 
     # Get a fresh copy of data from file ()
     fresh_data = {}
