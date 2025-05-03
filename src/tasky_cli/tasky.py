@@ -48,6 +48,7 @@ parser.add_argument('-s', '--switch', nargs='+', metavar='T', action='store', ty
 parser.add_argument('-f', '--flag', nargs='+', metavar='T', action='store', type=int, help='Flag task(s) with astrict (*).')
 parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='store', type=int, help='Set the priority of task [T] to [P]. Priorities: 0, 1, 2, or 3.')
 parser.add_argument('-l', '--later', nargs=1, metavar='D' ,action='store', help='Buffer a task for later. Enter [D] as YYYY-MM-DD or days from today. Prompts for task description after.')
+parser.add_argument('--peek', action='store_true', help='Preview scheduled tasks.')
 parser.add_argument('-e', '--edit', nargs=1, metavar='T', action='store', type=int, help='Enter edit mode on a task.')
 parser.add_argument('-d', '--delete', nargs='+', metavar='T', action='store', type=int, help='Mark task [T] for deletion.')
 parser.add_argument('--clean', action='store_true', help='Remove complete/deleted tasks and reset indices.')
@@ -321,6 +322,28 @@ def print_calendar(date: str) -> None:
     print(f"{calendar.month_name[date_obj.month]} {date_obj.year}")
     print("Su Mo Tu We Th Fr Sa")
     print(highlight_date(date_obj))
+    print()
+
+
+def preview_schedule():
+    """Preview scheduled tasks sorted by date."""
+    if not schedule:
+        print("No tasks are currently scheduled.")
+        return
+
+    # Sort the schedule by date
+    sorted_schedule = sorted(schedule.items(), key=lambda x: datetime.datetime.strptime(x[1]['scheduled_date'], "%Y-%m-%d"))
+
+    # Calculate the maximum description length
+    max_desc_length = max(max((len(task['task_description']) for _, task in sorted_schedule), default=0), 28)
+
+    # Print the sorted schedule
+    print(f"\n{len(sorted_schedule)} Scheduled Tasks:")
+    print(f"{'─' * 12}┬─{'─' * max_desc_length}")
+    print(f"{'Date':<12}│ Description")
+    print(f"{'─' * 12}┼─{'─' * max_desc_length}")
+    for _, task in sorted_schedule:
+        print(f"{task['scheduled_date']:<12}│ {task['task_description']}")
     print()
         
 
@@ -799,6 +822,11 @@ def tasky(argv=None):
     elif args.flag:
         keys = [str(i) for i in args.flag]
         flag_tasks(keys)
+    
+
+    # --peek
+    elif args.peek:
+        preview_schedule()
 
 
     # --edit
