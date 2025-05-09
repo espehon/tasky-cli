@@ -308,12 +308,17 @@ def print_calendar(date: str) -> None:
         month = date_obj.month
         day = date_obj.day
 
+        # Set the first day of the week to Sunday
+        calendar.setfirstweekday(calendar.SUNDAY)
+        
         cal = calendar.monthcalendar(year, month)
         highlighted_cal = ""
         for week in cal:
-            for date in week:
-                if date == day:
-                    highlighted_cal += f"{Fore.LIGHTCYAN_EX}{date:2}{Style.RESET_ALL}"  # Highlight the date in red
+            for i, date in enumerate(week):
+                if date == 0:  # Empty day (padding)
+                    highlighted_cal += "   "
+                elif date == day:
+                    highlighted_cal += f"{Fore.LIGHTCYAN_EX}{date:2}{Style.RESET_ALL} "
                 else:
                     highlighted_cal += f"{date:2} "
             highlighted_cal += "\n"
@@ -369,7 +374,11 @@ def schedule_task(date: str):
             print(f"'{date}' is not a valid date.")
             sys.exit(1)
     print_calendar(scheduled_date)
-    task_description = input(f"Enter task description for {scheduled_date}...\n>>> ").strip()
+    try:
+        task_description = input(f"Enter task description for {scheduled_date}...\n>>> ").strip()
+    except KeyboardInterrupt:
+        print("\nTask scheduling cancelled.")
+        sys.exit(1)
     new_entry = {
         "scheduled_date": scheduled_date,
         "task_description": task_description,
