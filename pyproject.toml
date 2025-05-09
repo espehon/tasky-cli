@@ -1,33 +1,33 @@
 [build-system]
-requires = ["setuptools"]                             # Boilerplate
-build-backend = "setuptools.build_meta"               # Boilerplate
+requires = ["setuptools"]                             
+build-backend = "setuptools.build_meta"               
 
 [project]
-name = "tasky-cli"                              # Your pip install <name> (must be unique)
-version = "0.4"                               # Must be manually updated here with every change
+name = "tasky-cli" 
+version = "0.4.0"    
 authors = [
-	{ name="espehon", email="espehon@gmail.com" },      # Email is optional (as array?)
+	{ name="espehon", email="espehon@gmail.com" }   
 ]
 
-description = "A to-do list CLI that's heavily inspired by klaudiosinani's taskbook (JavaScript)."               # Header on PyPI (above readme)
-readme = "README.md"                                  # Boilerplate and will be added to the PyPI page
-requires-python = ">=3.10"                            # Python version
-dependencies = [                                      # Any site-package dependencies (as a list)
-	"colorama >= 0.4.6"                           # NOTE: if any given, the pip test will be different
+description = "A to-do list CLI that's heavily inspired by klaudiosinani's taskbook (JavaScript)."     
+readme = "README.md"                                  
+requires-python = ">=3.10"                         
+dependencies = [                                
+	"colorama >= 0.4.6"                        
 ]
 
-classifiers = [                                       	# Kinda boilerplate. Used as hashtags really
-	"Programming Language :: Python :: 3",          # Tweak this to match your project
-	"Development Status :: 4 - Beta",               # https://pypi.org/classifiers/
+classifiers = [                                
+	"Programming Language :: Python :: 3",        
+	"Development Status :: 5 - Production/Stable",           
 	"Environment :: Console",
 	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
 	"Topic :: Utilities"
 ]
 
-[project.scripts]                               # The entrypoint for CLI app (if needed)
-ts = "tasky_cli.tasky:tasky"               	# SYNTAX: <commandlet> = "folder.file:function"
-                                                # def main in __main__ and place in if name check
+[project.scripts]                          
+ts = "tasky_cli.tasky:tasky"               
+
 [project.urls]
-"Homepage" = "https://github.com/espehon/tasky-cli"              # Boilerplate links to GitHub repo
-"Bug Tracker" = "https://github.com/espehon/tasky-cli/issues"    # Boilerplate links to GitHub repo issues
+"Homepage" = "https://github.com/espehon/tasky-cli"            
+"Bug Tracker" = "https://github.com/espehon/tasky-cli/issues"  
