@@ -310,7 +310,7 @@ def print_calendar(date: str) -> None:
 
         # Set the first day of the week to Sunday
         calendar.setfirstweekday(calendar.SUNDAY)
-        
+
         cal = calendar.monthcalendar(year, month)
         highlighted_cal = ""
         for week in cal:
@@ -324,7 +324,7 @@ def print_calendar(date: str) -> None:
             highlighted_cal += "\n"
         return highlighted_cal
     print()
-    print(f"{calendar.month_name[date_obj.month]} {date_obj.year}")
+    print(f"{calendar.month_name[date_obj.month]} {date_obj.year}".center(20))
     print("Su Mo Tu We Th Fr Sa")
     print(highlight_date(date_obj))
     print()
