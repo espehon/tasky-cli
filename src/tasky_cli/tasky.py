@@ -1,7 +1,7 @@
 # Copyright (c) 2024 espehon
 # MIT License
 
-#region: Housekeeping
+#region: Inports
 import os
 import sys
 import argparse
@@ -24,6 +24,13 @@ try:
     __version__ = f"tasky {importlib.metadata.version('tasky_cli')} from tasky_cli"
 except importlib.metadata.PackageNotFoundError:
     __version__ = "Package not installed..."
+
+
+
+#endregion
+#region: Arguments
+
+
 
 # Set user paths
 # home = os.path.expanduser("~") # not needed?
@@ -99,6 +106,12 @@ try:
 except:
     print(f"{Fore.RED}FATAL: Reading config file failed!")
     sys.exit(1)
+
+
+
+#endregion
+#region: Configs
+
 
 
 # Unpack configs dict
@@ -243,6 +256,12 @@ if config_errors:
         print(f"\t{e}")
 
 
+
+#endregion
+#region: Setup
+
+
+
 # Priority tables
 priority_color = {
     0: priorityColor0,
@@ -285,14 +304,17 @@ with open(task_data_file, 'r') as json_file:
 with open(schedule_file_path, 'r') as json_file:
     schedule = json.load(json_file)
 
+
+
 #endregion
-
-
-
 #region: Functions
+
+
+
 def add_new_task(task: dict):
     """Adds a new task dict to the data dict"""
     data.update(task)
+
 
 def print_calendar(date: str) -> None:
     '''print the a calendar for the month of the given date with the date highlighted.
@@ -350,7 +372,7 @@ def preview_schedule():
     for _, task in sorted_schedule:
         print(f"{task['scheduled_date']:<12}│ {task['task_description']}")
     print()
-        
+
 
 def schedule_task(date: str):
     """Schedule a task for a given date. Date can be in the format YYYY-MM-DD or as a number of days from today."""
@@ -388,19 +410,11 @@ def schedule_task(date: str):
         json.dump(schedule, json_file, indent=4)
 
 
-
-#TODO moke a function to check for scheduled tasks and build any if found
-
-
 def process_scheduled_tasks():
     found_priority = check_for_priority(task_description[-3:])
 
     if found_priority[0]:
         task_description = task_description[:-3].strip()
-
-
-
-
 
 
 def update_tasks(override_data=None):
@@ -765,9 +779,13 @@ def repair_configs(warn: bool=True):
                 settingsFile.write(defaults.default_configs)
             print(f"{config_file} reset.")
 
-    
 
-# Main
+
+#endregion
+#region: MAIN
+
+
+
 tasks_index = index_data(data)
 
 if len(tasks_index) == 0:
