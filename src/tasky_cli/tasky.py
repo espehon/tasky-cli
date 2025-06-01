@@ -12,6 +12,9 @@ from configparser import ConfigParser
 import importlib.metadata
 import calendar
 
+import questionary
+from dateutil.rrule import *
+
 try:
     from tasky_cli import defaults
 except ModuleNotFoundError:
@@ -374,6 +377,32 @@ def preview_schedule():
     print()
 
 
+def interactive_get_rrule_string() -> str:
+    """Build a string for the rrule field in the schedule file."""
+    # [ ] FEATURE: Add the ability to schedule recurring tasks.
+    # [x] TODO: ask for frequency
+    freq = questionary.select(
+        "How often should the task recur?",
+        choices=["Daily", "Weekly", "Monthly", "Yearly"]
+    ).ask()
+    # [x] TODO: ask for interval
+    interval = questionary.text("Enter the interval (default is 1):", default="1").ask().strip()
+    if not interval.isdigit():
+        print(f"{interval} is not a valid interval. Aborting...")
+        sys.exit(1)
+    interval = int(interval)
+    # [ ] TODO: if yearly logic; months; then go to monthly logic
+    if freq == "Yearly":
+        month = questionary.select(
+            "Select the month for the yearly recurrence:",
+            choices=list(calendar.month_name[1:])  # Exclude the empty first element
+        ).ask()
+        month_index = list(calendar.month_name).index(month)
+    # [ ] TODO: if monthly logic; days of month or Nth weekday of month
+    # [ ] TODO: if weekly logic; days of week
+    # [ ] TODO: ask for end date
+    return "FREQ=DAILY;INTERVAL=1"  # Example: Daily recurrence every 1 day
+
 def schedule_task(date: str):
     """Schedule a task for a given date. Date can be in the format YYYY-MM-DD or as a number of days from today."""
     new_entry = {}
@@ -401,6 +430,7 @@ def schedule_task(date: str):
     except KeyboardInterrupt:
         print("\nTask scheduling cancelled.")
         sys.exit(1)
+    # [ ] TODO: ask if reoccurring task and call build_rrule_string() to save to schedule file.
     new_entry = {
         "scheduled_date": scheduled_date,
         "task_description": task_description,
