@@ -380,28 +380,63 @@ def preview_schedule():
 def interactive_get_rrule_string() -> str:
     """Build a string for the rrule field in the schedule file."""
     # [ ] FEATURE: Add the ability to schedule recurring tasks.
+    rrule_parts = []
+
     # [x] TODO: ask for frequency
     freq = questionary.select(
         "How often should the task recur?",
         choices=["Daily", "Weekly", "Monthly", "Yearly"]
     ).ask()
+    rrule_parts.append(f"FREQ={freq.upper()}")
+
     # [x] TODO: ask for interval
     interval = questionary.text("Enter the interval (default is 1):", default="1").ask().strip()
     if not interval.isdigit():
         print(f"{interval} is not a valid interval. Aborting...")
         sys.exit(1)
     interval = int(interval)
-    # [ ] TODO: if yearly logic; months; then go to monthly logic
+    rrule_parts.append(f"INTERVAL={interval}")
+
+    # [x] TODO: if yearly logic; months; then go to monthly logic
     if freq == "Yearly":
         month = questionary.select(
             "Select the month for the yearly recurrence:",
             choices=list(calendar.month_name[1:])  # Exclude the empty first element
         ).ask()
         month_index = list(calendar.month_name).index(month)
-    # [ ] TODO: if monthly logic; days of month or Nth weekday of month
-    # [ ] TODO: if weekly logic; days of week
+        rrule_parts.append(f"BYMONTH={','.join(month_index)}")
+
+    # [x] TODO: if monthly logic; days of month or Nth weekday of month
+    if freq == "Monthly" or freq == "Yearly":
+        user = questionary.select("Select monthly method:", choices=["Nth day(s) of the month", "Nth weekday of the month"])
+        if user == "Nth day(s) of the month":
+            bymonthday = questionary.text("Enter days of the month as integers separated by spaces:").ask().split(' ')
+            rrule_parts.append(f"BYMONTHDAY={','.join(bymonthday)}")
+        elif user == "Nth weekday of the month":
+            byday = questionary.select(
+                "Select the weekday:",
+                choices=["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+            ).ask()
+            nweekday = questionary.checkbox(f"Select the indices for {byday}:", choices=[1, 2, 3, 4, 5])
+            rrule_parts.append(f"BYWEEKDAY={byday}({','.join(nweekday)})")
+
+    # [x] TODO: if weekly logic; days of week
+    elif freq == "Weekly":
+        byday = questionary.checkbox(
+            "Select the weekdays for recurrence:",
+            choices=["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
+        ).ask()
+        rrule_parts.append(f"BYDAY={','.join(byday)}")
+
     # [ ] TODO: ask for end date
-    return "FREQ=DAILY;INTERVAL=1"  # Example: Daily recurrence every 1 day
+    tries = 3
+    while tries:
+        edate = questionary.text("Enter the end date for this reoccurring task (YYYY-MM-DD):").ask()
+        # [ ] TODO: validate user input
+        
+
+    rrule_string = ';'.join(rrule_parts)
+    return rrule_string
 
 def schedule_task(date: str):
     """Schedule a task for a given date. Date can be in the format YYYY-MM-DD or as a number of days from today."""
