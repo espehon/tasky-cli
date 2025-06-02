@@ -379,7 +379,7 @@ def preview_schedule():
 
 def interactive_get_rrule_string() -> str:
     """Build a string for the rrule field in the schedule file."""
-    # [ ] FEATURE: Add the ability to schedule recurring tasks.
+    # [x] FEATURE: Add the ability to schedule recurring tasks.
     rrule_parts = []
 
     # [x] TODO: ask for frequency
@@ -399,25 +399,30 @@ def interactive_get_rrule_string() -> str:
 
     # [x] TODO: if yearly logic; months; then go to monthly logic
     if freq == "Yearly":
-        month = questionary.select(
+        months = questionary.checkbox(
             "Select the month for the yearly recurrence:",
             choices=list(calendar.month_name[1:])  # Exclude the empty first element
         ).ask()
-        month_index = list(calendar.month_name).index(month)
-        rrule_parts.append(f"BYMONTH={','.join(month_index)}")
+        month_indices = [str(list(calendar.month_name).index(m)) for m in months]
+        rrule_parts.append(f"BYMONTH={','.join(month_indices)}")
 
     # [x] TODO: if monthly logic; days of month or Nth weekday of month
     if freq == "Monthly" or freq == "Yearly":
-        user = questionary.select("Select monthly method:", choices=["Nth day(s) of the month", "Nth weekday of the month"])
+        user = questionary.select("Select monthly method:", choices=["Nth day(s) of the month", "Nth weekday of the month"]).ask()
         if user == "Nth day(s) of the month":
-            bymonthday = questionary.text("Enter days of the month as integers separated by spaces:").ask().split(' ')
+            user = questionary.text("Enter days of the month as integers separated by spaces:").ask().split(' ')
+            bymonthday = []
+            for d in user:
+                if not d.isdigit() or int(d) < 1 or int(d) > 31:
+                    continue
+                bymonthday.append(str(int(d)))
             rrule_parts.append(f"BYMONTHDAY={','.join(bymonthday)}")
         elif user == "Nth weekday of the month":
             byday = questionary.select(
                 "Select the weekday:",
                 choices=["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
             ).ask()
-            nweekday = questionary.checkbox(f"Select the indices for {byday}:", choices=[1, 2, 3, 4, 5])
+            nweekday = questionary.checkbox(f"Select the indices for {byday}:", choices=['1', '2', '3', '4', '5']).ask()
             rrule_parts.append(f"BYWEEKDAY={byday}({','.join(nweekday)})")
 
     # [x] TODO: if weekly logic; days of week
@@ -428,11 +433,21 @@ def interactive_get_rrule_string() -> str:
         ).ask()
         rrule_parts.append(f"BYDAY={','.join(byday)}")
 
-    # [ ] TODO: ask for end date
+    # [x] TODO: ask for end date
     tries = 3
     while tries:
         edate = questionary.text("Enter the end date for this reoccurring task (YYYY-MM-DD):").ask()
-        # [ ] TODO: validate user input
+        # [x] TODO: validate user input
+        try:
+            datetime.datetime.strptime(edate, "%Y-%m-%d").date()
+            rrule_parts.append(f"UNTIL={edate}")
+            break
+        except ValueError:
+            tries -= 1
+            print(f"'{edate}' is not a valid date. You have {tries} tries left.")
+            if tries == 0:
+                print("Aborting...")
+                sys.exit(1)
         
 
     rrule_string = ';'.join(rrule_parts)
@@ -461,14 +476,20 @@ def schedule_task(date: str):
             sys.exit(1)
     print_calendar(scheduled_date)
     try:
-        task_description = input(f"Enter task description for {scheduled_date}...\n>>> ").strip()
+        task_description = questionary.text(f"Enter task description for {scheduled_date}:").ask().strip()
     except KeyboardInterrupt:
         print("\nTask scheduling cancelled.")
         sys.exit(1)
-    # [ ] TODO: ask if reoccurring task and call build_rrule_string() to save to schedule file.
+    # [x] TODO: ask if reoccurring task and call build_rrule_string() to save to schedule file.
+    user = questionary.confirm("Is this a reoccurring task?", default=False).ask()
+    if user:
+        rrule_string = interactive_get_rrule_string()
+    else:
+        rrule_string = None
     new_entry = {
         "scheduled_date": scheduled_date,
         "task_description": task_description,
+        "rrule": rrule_string
     }
     schedule[str(next_key)] = new_entry
     with open(schedule_file_path, 'w') as json_file:
@@ -566,7 +587,7 @@ def check_for_priority(text: str) -> tuple:
 
 
 def add_scheduled_tasks():
-    """Check the schedule file for any tasks that are due today and print them out"""
+    """Check the schedule file for any tasks that are due today and move them to the data dict."""
     today = datetime.datetime.today().date()
     tasks_to_add = {}
     schedule_copy = copy.deepcopy(schedule)
@@ -574,9 +595,25 @@ def add_scheduled_tasks():
     # move due tasks from schedule to tasks_to_add
     for key, task in schedule_copy.items():
         if datetime.datetime.strptime(task['scheduled_date'], "%Y-%m-%d").date() <= today:
-            #TODO: left off here.
             tasks_to_add[key] = task
-            schedule.pop(key)
+            if task.get('rrule') is None:
+                schedule.pop(key)
+            else:
+                # Parse the rrule
+                rule = rrulestr(task['rrule'], dtstart=datetime.datetime.now())
+
+                # Get the next occurrence
+                next_occurrence = rule.after(datetime.datetime.now())
+                if next_occurrence is None:
+                    schedule.pop(key)
+                    continue
+
+                # Format as YYYY-MM-DD
+                next_date = next_occurrence.strftime("%Y-%m-%d")
+                if datetime.datetime.strptime(next_date, "%Y-%m-%d").date() > today:
+                    schedule[key]['scheduled_date'] = next_date
+                else:
+                    schedule.pop(key) # this should not happen, but just in case 
     
     if len(tasks_to_add) > 0:
         # re-order schedule due to removed tasks and overwrite json file
