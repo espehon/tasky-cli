@@ -469,8 +469,8 @@ def schedule_task(date: str):
         scheduled_date = scheduled_date.strftime("%Y-%m-%d") # Date to str
     except ValueError:
         try:
-            datetime.datetime.strptime(date, "%Y-%m-%d").date()
-            scheduled_date = date
+            user_input_as_datetime = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+            scheduled_date = user_input_as_datetime.strftime("%Y-%m-%d")  # Date to str so that the format is consistent
         except ValueError:
             print(f"'{date}' is not a valid date.")
             sys.exit(1)
