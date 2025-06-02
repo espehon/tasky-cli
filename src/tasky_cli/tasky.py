@@ -20,7 +20,7 @@ try:
 except ModuleNotFoundError:
     import defaults
 
-from colorama import Fore, Style, init
+from colorama import Fore, Back, Style, init
 init(autoreset=True)
 
 try:
@@ -369,11 +369,11 @@ def preview_schedule():
 
     # Print the sorted schedule
     print(f"\n{len(sorted_schedule)} Scheduled Tasks:")
-    print(f"{'─' * 12}┬─{'─' * max_desc_length}")
-    print(f"{'Date':<12}│ Description")
-    print(f"{'─' * 12}┼─{'─' * max_desc_length}")
+    # print(f"{'─' * 12}┬─{'─' * max_desc_length}")
+    print(f"{Back.WHITE}{Fore.BLACK}{' Date':<12}{'   Description':<{max_desc_length}}▕")
+    # print(f"{'─' * 12}┼─{'─' * max_desc_length}")
     for _, task in sorted_schedule:
-        print(f"{task['scheduled_date']:<12}│ {task['task_description']}")
+        print(f" {task['scheduled_date']:<12}│ {task['task_description']}")
     print()
 
 
