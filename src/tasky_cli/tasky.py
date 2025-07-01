@@ -905,15 +905,9 @@ def tasky(argv=None):
         passed_string = passed_string[:-3].strip()
 
 
-    # --task
-    if args.task:    
-        new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
-        add_new_task(new_task)
-        update_tasks()
-        render_tasks("New task added.")
     
     # --later
-    elif args.later:
+    if args.later:
         date = args.later[0]
         schedule_task(date)
         render_tasks("Task scheduled.")
@@ -968,6 +962,12 @@ def tasky(argv=None):
     elif args.configs:
         check_configs(passed_string.lower())
 
+    # --task or just text
+    elif args.task or passed_string:   
+        new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
+        add_new_task(new_task)
+        update_tasks()
+        render_tasks("New task added.")
 
     # no args
     else:
