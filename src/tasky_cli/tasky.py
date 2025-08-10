@@ -13,7 +13,7 @@ import importlib.metadata
 import calendar
 
 import questionary
-from dateutil.rrule import *
+from dateutil.rrule import rrulestr
 
 try:
     from tasky_cli import defaults
