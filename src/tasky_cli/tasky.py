@@ -496,11 +496,11 @@ def schedule_task(date: str):
         json.dump(schedule, json_file, indent=4)
 
 
-def process_scheduled_tasks():
-    found_priority = check_for_priority(task_description[-3:])
+# def process_scheduled_tasks():
+#     found_priority = check_for_priority(task_description[-3:])
 
-    if found_priority[0]:
-        task_description = task_description[:-3].strip()
+#     if found_priority[0]:
+#         task_description = task_description[:-3].strip()
 
 
 def update_tasks(override_data=None):
