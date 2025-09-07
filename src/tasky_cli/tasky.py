@@ -57,7 +57,7 @@ parser.add_argument('-c', '--complete', nargs='+', metavar='T', action='store', 
 parser.add_argument('-s', '--switch', nargs='+', metavar='T', action='store', type=int, help='Toggle task(s) as started/stopped.')
 parser.add_argument('-f', '--flag', nargs='+', metavar='T', action='store', type=int, help='Flag task(s) with astrict (*).')
 parser.add_argument('-p', '--priority', nargs=2, metavar=('T', 'P'), action='store', type=int, help='Set the priority of task [T] to [P]. Priorities: 0, 1, 2, or 3.')
-parser.add_argument('-l', '--later', nargs=1, metavar='D' ,action='store', help='Buffer a task for later. Enter [D] as YYYY-MM-DD or days from today. Prompts for task description after.')
+parser.add_argument('-l', '--later', action='store_true', help='Schedule a task for later.')
 parser.add_argument('--peek', action='store_true', help='Preview scheduled tasks.')
 parser.add_argument('-e', '--edit', nargs=1, metavar='T', action='store', type=int, help='Enter edit mode on a task.')
 parser.add_argument('-d', '--delete', nargs='+', metavar='T', action='store', type=int, help='Mark task [T] for deletion.')
@@ -453,7 +453,7 @@ def interactive_get_rrule_string() -> str:
     rrule_string = ';'.join(rrule_parts)
     return rrule_string
 
-def schedule_task(date: str):
+def schedule_task(task_string: str):
     """Schedule a task for a given date. Date can be in the format YYYY-MM-DD or as a number of days from today."""
     new_entry = {}
     schedule_copy = copy.deepcopy(schedule)
@@ -462,6 +462,8 @@ def schedule_task(date: str):
         next_key = 1
     else:
         next_key = max(schedule_keys) + 1
+    
+    date = questionary.text("Enter date (YYYY-MM-DD or number of days from today):", default="1").ask().strip()
 
     try:
         days_out = int(date)
@@ -475,11 +477,7 @@ def schedule_task(date: str):
             print(f"'{date}' is not a valid date.")
             sys.exit(1)
     print_calendar(scheduled_date)
-    try:
-        task_description = questionary.text(f"Enter task description for {scheduled_date}:").ask().strip()
-    except KeyboardInterrupt:
-        print("\nTask scheduling cancelled.")
-        sys.exit(1)
+    
     # [x] TODO: ask if reoccurring task and call build_rrule_string() to save to schedule file.
     user = questionary.confirm("Is this a reoccurring task?", default=False).ask()
     if user:
@@ -488,7 +486,7 @@ def schedule_task(date: str):
         rrule_string = None
     new_entry = {
         "scheduled_date": scheduled_date,
-        "task_description": task_description,
+        "task_description": task_string,
         "rrule": rrule_string
     }
     schedule[str(next_key)] = new_entry
@@ -898,18 +896,19 @@ else:
 def tasky(argv=None):
     args = parser.parse_args(argv) #Execute parse_args()
 
-    passed_string = (" ".join(args.text)).strip()
-    passed_priority = check_for_priority(passed_string[-3:])
+    raw_passed_string = (" ".join(args.text)).strip()
+    passed_priority = check_for_priority(raw_passed_string[-3:])
 
     if passed_priority[0]:
-        passed_string = passed_string[:-3].strip()
+        passed_string = raw_passed_string[:-3].strip()
+    else:
+        passed_string = raw_passed_string
 
 
     
     # --later
     if args.later:
-        date = args.later[0]
-        schedule_task(date)
+        schedule_task(raw_passed_string)
         render_tasks("Task scheduled.")
 
     # --switch
