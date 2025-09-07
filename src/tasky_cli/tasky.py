@@ -366,14 +366,15 @@ def preview_schedule():
 
     # Calculate the maximum description length
     max_desc_length = max(max((len(task['task_description']) for _, task in sorted_schedule), default=0), 28)
+    max_rrule_length = max(max((len(str(task['rrule'])) for _, task in sorted_schedule if task['rrule'] is not None), default=0), 7)
 
     # Print the sorted schedule
     print(f"\n{len(sorted_schedule)} Scheduled Tasks:")
     # print(f"{'─' * 12}┬─{'─' * max_desc_length}")
-    print(f"{Back.WHITE}{Fore.BLACK}{' Date':<12}{'   Description':<{max_desc_length}}▕")
+    print(f"{Back.WHITE}{Fore.BLACK}{' Date':<12}{'   Description':<{max_desc_length}}{'   R-rule':<{max_rrule_length}}▕")
     # print(f"{'─' * 12}┼─{'─' * max_desc_length}")
     for _, task in sorted_schedule:
-        print(f" {task['scheduled_date']:<12}│ {task['task_description']}")
+        print(f" {task['scheduled_date']:<12}│ {task['task_description']} | {str(task['rrule']) if task['rrule'] is not None else task['rrule']:<{max_rrule_length}}")
     print()
 
 
