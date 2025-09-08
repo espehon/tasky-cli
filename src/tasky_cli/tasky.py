@@ -656,7 +656,7 @@ def render_tasks(prolog: str="") -> None:
     # check for and add scheduled tasks
     num_scheduled_tasks =  add_scheduled_tasks()
     if num_scheduled_tasks > 0:
-        prolog = f"{prolog}\n{num_scheduled_tasks} scheduled tasks added."
+        prolog = f"{prolog}\n{num_scheduled_tasks} scheduled tasks added.\a"
 
     # Get a fresh copy of data from file ()
     fresh_data = {}
