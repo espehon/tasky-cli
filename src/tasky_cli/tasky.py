@@ -606,7 +606,7 @@ def add_scheduled_tasks():
 
         # Get a fresh copy of data from file ()
         fresh_data = {}
-        with open(task_data_file, 'r') as json_file: #TODO: #3 This function should take an optional passed dict for printing if it is not going to use the global data.
+        with open(task_data_file, 'r') as json_file:
             fresh_data = json.load(json_file)
         data_copy = copy.deepcopy(fresh_data)
 
@@ -616,7 +616,7 @@ def add_scheduled_tasks():
         if len(tasks_keys) == 0:
             next_key = 1
         else:
-            next_key = max(tasks_index) + 1
+            next_key = max(tasks_keys) + 1
         
         for key, task in tasks_to_add.items():
             desc = task['task_description']
