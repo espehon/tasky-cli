@@ -620,10 +620,10 @@ def add_scheduled_tasks():
         
         for key, task in tasks_to_add.items():
             desc = task['task_description']
-            found_priority = check_for_priority(desc[-3:])
-            if found_priority[0]:
-                desc = desc[:-3].strip()
-            new_task = format_new_task(next_key, desc, found_priority[1], False)
+
+            desc, found_priority = parse_task_priority(desc)
+
+            new_task = format_new_task(next_key, desc, found_priority, False)
             data_copy.update(new_task)
             added_tasks += 1
             next_key += 1
