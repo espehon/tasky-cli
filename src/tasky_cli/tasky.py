@@ -906,6 +906,8 @@ def tasky(argv=None):
     
     # --later
     if args.later:
+        if raw_passed_string == "":
+            raw_passed_string = questionary.text("Enter task description:").ask().strip()
         schedule_task(raw_passed_string)
         render_tasks("Task scheduled.")
 
@@ -964,7 +966,7 @@ def tasky(argv=None):
         if args.task and raw_passed_string == "":
             raw_passed_string = questionary.text("Enter task description:").ask().strip()
         passed_string, passed_priority = parse_task_priority(raw_passed_string)
-        new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
+        new_task = format_new_task(next_index, passed_string, passed_priority, False)
         add_new_task(new_task)
         update_tasks()
         render_tasks("New task added.")
