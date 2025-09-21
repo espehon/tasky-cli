@@ -566,24 +566,6 @@ def format_new_task(index: int, task_desc: str, priority: int, flagged: bool) ->
     return output
 
 
-def check_for_priority(text: str) -> tuple:
-    """
-    Returns a tuple containing bool and int.
-    Bool represents if the priority was passed in the task description.
-    Int represents the priority.
-    """
-    # This could be done with a match/case block, but I want to keep the Python requirements low.
-    if len(text) == 3:
-        a, b, c = text
-        if str.lower(a) == 'p':
-            if b == ':':
-                try:
-                    if int(c) in PRIORITIES:
-                        return (True, int(c))
-                except:
-                    pass
-    return (False, DEFAULT_PRIORITY)
-
 
 def add_scheduled_tasks():
     """Check the schedule file for any tasks that are due today and move them to the data dict."""
@@ -881,6 +863,21 @@ def repair_configs(warn: bool=True):
             print(f"{config_file} reset.")
 
 
+def parse_task_priority(text: str) -> tuple:
+    """
+    Returns a tuple containing the task description and priority.
+    The last 3 characters of the text are checked for 'p:X' where X is the priority as an integer.
+    If no priority is found, the default priority is returned.
+    If a priority is found, its components are removed from the description.
+    """
+    text = text.strip()
+    if len(text) > 3:
+        a, b, c = text[:-3].strip(), text[-3:-1], text[-1]
+        if str.lower(b) == 'p:' and c.isdigit() and int(c) in PRIORITIES:
+            return (a, int(c))
+    return (text, DEFAULT_PRIORITY)
+
+
 
 #endregion
 #region: MAIN
@@ -898,12 +895,12 @@ def tasky(argv=None):
     args = parser.parse_args(argv) #Execute parse_args()
 
     raw_passed_string = (" ".join(args.text)).strip()
-    passed_priority = check_for_priority(raw_passed_string[-3:])
+    # passed_priority = check_for_priority(raw_passed_string[-3:])
 
-    if passed_priority[0]:
-        passed_string = raw_passed_string[:-3].strip()
-    else:
-        passed_string = raw_passed_string
+    # if passed_priority[0]:
+    #     passed_string = raw_passed_string[:-3].strip()
+    # else:
+    #     passed_string = raw_passed_string
 
 
     
@@ -960,10 +957,13 @@ def tasky(argv=None):
 
     # --configs
     elif args.configs:
-        check_configs(passed_string.lower())
+        check_configs(raw_passed_string.lower())
 
     # --task or just text
-    elif args.task or passed_string:   
+    elif args.task or raw_passed_string:
+        if args.task and raw_passed_string == "":
+            raw_passed_string = questionary.text("Enter task description:").ask().strip()
+        passed_string, passed_priority = parse_task_priority(raw_passed_string)
         new_task = format_new_task(next_index, passed_string, passed_priority[1], False)
         add_new_task(new_task)
         update_tasks()
