@@ -424,7 +424,8 @@ def interactive_get_rrule_string() -> str:
                 choices=["MO", "TU", "WE", "TH", "FR", "SA", "SU"]
             ).ask()
             nweekday = questionary.checkbox(f"Select the indices for {byday}:", choices=['1', '2', '3', '4', '5']).ask()
-            rrule_parts.append(f"BYWEEKDAY={byday}({','.join(nweekday)})")
+            # rrule_parts.append(f"BYWEEKDAY={byday}({','.join(nweekday)})")
+            rrule_parts.append(f"BYDAY={','.join([f'{i}{byday}' for i in nweekday])}") # this should fix the issue reading in an rrule with something like 'BYWEEKDAY': WE(1,4)
 
     # [x] TODO: if weekly logic; days of week
     elif freq == "Weekly":
