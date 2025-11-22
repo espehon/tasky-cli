@@ -624,6 +624,10 @@ def add_scheduled_tasks():
 
             desc, found_priority = parse_task_priority(desc)
 
+            # Check if this task already exists it data to avoid spamming duplicate tasks
+            if any(d['desc'] == desc for d in data_copy.values()):
+                continue
+
             new_task = format_new_task(next_key, desc, found_priority, False)
             data_copy.update(new_task)
             added_tasks += 1
@@ -660,12 +664,15 @@ def render_tasks(prolog: str="") -> None:
         elif status in [4]:
             data_copy.pop(key)
     total = done + working + pending
+    remaining = working + pending
 
     # Calculate percent complete
     if total == 0:
         rate = 100
     else:
         rate = int((done / total) * 100)
+    
+    rateColor = color_gradient(rate)
     
     # Calculate the width of printout (length of longest description and a buffer)
     buffer = 20
@@ -681,7 +688,7 @@ def render_tasks(prolog: str="") -> None:
     boarder = [color(boarderColor) + "┍" + ("━"*width),
                 " " + (color(boarderColor) + "─"*width) + "┚"]
     title = f"{color(boarderColor)}│{Style.RESET_ALL}  Tasky {color(boarderColor)}[{done}/{total}]"
-    complete_stat = f"{color_gradient(rate)}{str(rate).rjust(3)}%{color(boarderColor)} of all tasks complete.{Style.RESET_ALL}"
+    complete_stat = f"{rateColor}{str(rate).rjust(3)}%{color(boarderColor)} of all tasks complete. ({rateColor}{remaining}{color(boarderColor)} remaining){Style.RESET_ALL}"
     breakdown_stat = f"{color(completeTaskColor)}{str(done).rjust(3)}{color(boarderColor)} done · {color(startedTaskColor)}{working}{color(boarderColor)} in-progress · {color(stoppedTaskColor)}{pending}{color(boarderColor)} pending"
     
     def get_task_lines():
