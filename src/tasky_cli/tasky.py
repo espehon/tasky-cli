@@ -624,8 +624,9 @@ def add_scheduled_tasks():
 
             desc, found_priority = parse_task_priority(desc)
 
-            # Check if this task already exists it data to avoid spamming duplicate tasks
-            if any(d['desc'] == desc for d in data_copy.values()):
+            # Check if this task already exists as a pending/working task in data to avoid spamming duplicate tasks
+            ''' 0=pending, 1=working, 2=stopped, 3=done, 4=deleted '''
+            if any(d['desc'] == desc and d['status'] in [0,1,2] for d in data_copy.values()):
                 continue
 
             new_task = format_new_task(next_key, desc, found_priority, False)
@@ -652,6 +653,7 @@ def render_tasks(prolog: str="") -> None:
     data_copy = copy.deepcopy(fresh_data)
 
     # Count up the tasks and their status
+    ''' 0=pending, 1=working, 2=stopped, 3=done, 4=deleted '''
     done, working, pending = 0, 0, 0
     for key, task in fresh_data.items():
         status = task['status']
